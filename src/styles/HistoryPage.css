@@ -1,0 +1,233 @@
+/* Cùng layout shell với Quản lý cư dân / Tổng quan */
+.history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.history-toolbar-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.history-toolbar-top {
+  margin-bottom: 16px;
+}
+
+.history-title-block {
+  min-width: 0;
+}
+
+.history-page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.history-page-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* Tab dạng segment */
+.history-segments {
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.history-segment {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-segment:hover {
+  color: #0f172a;
+}
+
+.history-segment.is-active {
+  background: #ffffff;
+  color: #1d4ed8;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.history-toolbar-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.history-date-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.history-date-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.history-date-input {
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-date-input:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #fff;
+}
+
+.history-search-box {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-search-box:focus-within {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #fff;
+}
+
+.history-search-icon {
+  display: flex;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.history-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 4px 10px 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.history-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.history-search-input:focus {
+  outline: none;
+}
+
+.history-result-pill {
+  font-size: 13px;
+  color: #64748b;
+  white-space: nowrap;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.history-result-pill strong {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.btn-history-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  margin-left: auto;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-history-export:hover {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-history-export-icon {
+  display: inline-flex;
+}
+
+.history-table-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+@media (max-width: 768px) {
+  .history-toolbar-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-history-export {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .history-date-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .history-segments {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .history-segment {
+    flex: 1;
+    text-align: center;
+  }
+}

@@ -11,14 +11,14 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
   return (
     <div className="resident-list-modern">
       <div className="resident-list-header-row">
-        <h2 className="resident-list-heading">Danh sách cư dân</h2>
+        <h2 className="resident-list-heading">Danh sách người dùng</h2>
       </div>
       <div className="resident-table-wrap">
         <table className="residents-table-modern">
           <thead>
             <tr>
               <th className="th-id">ID người dùng</th>
-              <th className="th-name">Cư dân</th>
+              <th className="th-name">Người dùng</th>
               <th>Phòng</th>
               <th>Điện thoại</th>
               <th>Biển số xe</th>
@@ -42,7 +42,7 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
                     </span>
                     <span className="resident-name-block">
                       <span className="resident-name-text">{resident.name}</span>
-                      <span className="resident-name-sub">Cư dân</span>
+                      <span className="resident-name-sub">Người dùng</span>
                     </span>
                   </td>
                   <td>{resident.room}</td>
@@ -74,7 +74,7 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
             ) : (
               <tr>
                 <td colSpan={6} className="no-data-modern">
-                  Không có cư dân phù hợp
+                  Không có người dùng phù hợp
                 </td>
               </tr>
             )}

@@ -40,7 +40,7 @@ export default function ResidentsPage() {
   };
 
   const handleDeleteResident = (id) => {
-    if (confirm('Bạn có chắc muốn xóa cư dân này?')) {
+    if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
       setResidents(residents.filter((r) => r.id !== id));
       setSelectedResident(null);
     }
@@ -93,9 +93,9 @@ export default function ResidentsPage() {
       <div className="residents-toolbar-card">
         <div className="residents-toolbar-top">
           <div className="residents-title-block">
-            <h1 className="residents-page-title">Quản lý cư dân</h1>
+            <h1 className="residents-page-title">Quản lý người dùng</h1>
             <p className="residents-page-subtitle">
-              {filteredResidents.length} cư dân
+              {filteredResidents.length} người dùng
               {searchTerm ? ` (lọc theo tìm kiếm)` : ''}
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function ResidentsPage() {
                 <line x1="23" y1="11" x2="17" y2="11" />
               </svg>
             </span>
-            Thêm cư dân mới
+            Thêm người dùng mới
           </button>
         </div>
 
@@ -230,7 +230,7 @@ export default function ResidentsPage() {
                   setShowDetailModal(false);
                 }}
               >
-                Xóa cư dân
+                Xóa người dùng
               </button>
             </div>
           </div>

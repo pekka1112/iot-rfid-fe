@@ -11,7 +11,7 @@ export default function Header({ totalResidents, totalGuests, residentCount, cam
       <div className="header-main">
         <div className="header-stats">
           <div className="stat-item">
-            <span className="stat-label">Tổng cư dân:</span>
+            <span className="stat-label">Tổng người dùng:</span>
             <span className="stat-value">{totalResidents}</span>
           </div>
 
@@ -21,7 +21,7 @@ export default function Header({ totalResidents, totalGuests, residentCount, cam
           </div>
 
           <div className="stat-item">
-            <span className="stat-label">Số cư dân:</span>
+            <span className="stat-label">Số người dùng:</span>
             <span className="stat-value">{residentCount}</span>
           </div>
         </div>

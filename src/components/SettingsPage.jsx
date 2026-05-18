@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import '../styles/SettingsPage.css';
 
 export default function SettingsPage() {
@@ -6,12 +7,40 @@ export default function SettingsPage() {
   const [rfidMode, setRfidMode] = useState('normal');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [sendStatus, setSendStatus] = useState('');
+  const [showBackup, setShowBackup] = useState(false);
+  const [backupData, setBackupData] = useState([]);
 
-  const handleSendData = () => {
-    setSendStatus('Đang gửi dữ liệu máy RFID về máy...');
-    setTimeout(() => {
-      setSendStatus('Đã gửi dữ liệu máy RFID về máy thành công.');
-    }, 1200);
+  const handleViewBackup = async () => {
+    try {
+      setSendStatus('Đang tải dữ liệu backup...');
+      const response = await fetch('http://localhost:8080/api/residents');
+      const data = await response.json();
+      setBackupData(data);
+      setShowBackup(true);
+      setSendStatus('');
+    } catch (err) {
+      console.error(err);
+      setSendStatus('Lỗi khi tải dữ liệu backup.');
+    }
+  };
+
+  const handlePushDataToRFID = async () => {
+    setSendStatus('Đang kết nối và đẩy dữ liệu lên máy RFID...');
+    try {
+      // Thay đổi đường dẫn API bên dưới cho phù hợp với backend Spring Boot của bạn
+      const response = await axios.post('http://localhost:8080/api/rfid/push', {
+        action: 'push_data',
+        timestamp: new Date().toISOString()
+      });
+      if (response.status === 200) {
+        setSendStatus('Đã đẩy dữ liệu lên máy RFID thành công.');
+      } else {
+        setSendStatus('Có lỗi xảy ra khi đẩy dữ liệu.');
+      }
+    } catch (error) {
+      console.error('Lỗi khi đẩy dữ liệu lên RFID:', error);
+      setSendStatus('Lỗi kết nối đến máy chủ Spring Boot (localhost:8080).');
+    }
   };
 
   const modeLabel =
@@ -22,9 +51,6 @@ export default function SettingsPage() {
       <div className="settings-toolbar-card">
         <div className="settings-title-block">
           <h1 className="settings-page-title">Cài đặt hệ thống</h1>
-          <p className="settings-page-subtitle">
-            Thiết lập RFID, thông báo và đồng bộ dữ liệu với thiết bị
-          </p>
         </div>
       </div>
 
@@ -32,14 +58,12 @@ export default function SettingsPage() {
         <section className="settings-panel-card">
           <div className="settings-panel-head">
             <h2 className="settings-panel-title">Cài đặt chung</h2>
-            <p className="settings-panel-desc">Tùy chọn hoạt động đầu đọc và thông báo</p>
           </div>
 
           <div className="settings-panel-body">
             <div className="settings-row">
               <div className="settings-row-text">
                 <span className="settings-row-label">Tự động đồng bộ RFID</span>
-                <span className="settings-row-hint">Đồng bộ định kỳ với máy chủ</span>
               </div>
               <label className="toggle-switch-modern">
                 <input
@@ -53,8 +77,7 @@ export default function SettingsPage() {
 
             <div className="settings-row">
               <div className="settings-row-text">
-                <span className="settings-row-label">Thông báo</span>
-                <span className="settings-row-hint">Email khi có sự kiện quan trọng</span>
+                <span className="settings-row-label">Thông báo Emai</span>
               </div>
               <label className="toggle-switch-modern">
                 <input
@@ -69,7 +92,6 @@ export default function SettingsPage() {
             <div className="settings-row">
               <div className="settings-row-text">
                 <span className="settings-row-label">Chế độ RFID</span>
-                <span className="settings-row-hint">Cân bằng tốc độ và tiêu thụ</span>
               </div>
               <select
                 className="settings-select"
@@ -91,18 +113,28 @@ export default function SettingsPage() {
           </div>
 
           <div className="settings-panel-body">
-            <button type="button" className="btn-settings-sync" onClick={handleSendData}>
+            <button type="button" className="btn-settings-sync" onClick={handlePushDataToRFID}>
               <span className="btn-settings-sync-icon" aria-hidden>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 4v6h-6" />
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
                 </svg>
               </span>
-              Đẩy dữ liệu máy RFID về máy
+              Đẩy dữ liệu về máy RFID
+            </button>
+
+            <button type="button" className="btn-settings-sync" onClick={handleViewBackup} style={{ background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }}>
+              <span className="btn-settings-sync-icon" aria-hidden>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M21 9H3" />
+                  <path d="M9 21V9" />
+                </svg>
+              </span>
+              Xem dữ liệu backup
             </button>
 
             {sendStatus && <p className="settings-send-status">{sendStatus}</p>}
-
             <div className="settings-summary-grid">
               <div className="settings-summary-item">
                 <span className="settings-summary-label">Trạng thái đồng bộ</span>
@@ -116,6 +148,48 @@ export default function SettingsPage() {
           </div>
         </section>
       </div>
+      {showBackup && (
+        <div className="backup-overlay" onClick={() => setShowBackup(false)}>
+          <div className="backup-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="backup-modal-head">
+              <h2>Dữ liệu Backup</h2>
+              <button className="backup-close-btn" onClick={() => setShowBackup(false)}>
+                ✕
+              </button>
+            </div>
+            <div className="backup-modal-body">
+              <table className="backup-table">
+                <thead>
+                  <tr>
+                    <th>Ảnh</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {backupData.map((user) => {
+                    const avatarLetter = user.fullName?.trim().split(/\s+/).pop()?.[0]?.toUpperCase() || '?';
+                    return (
+                      <tr key={user.residentId}>
+                        <td>
+                          <div className="backup-avatar">{avatarLetter}</div>
+                        </td>
+                        <td>{user.residentId}</td>
+                        <td>{user.fullName}</td>
+                      </tr>
+                    );
+                  })}
+                  {backupData.length === 0 && (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Không có dữ liệu</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

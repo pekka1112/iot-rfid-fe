@@ -3,29 +3,29 @@ import '../styles/ResidentForm.css';
 
 export default function ResidentForm({ resident, onSave, onClose }) {
   const [formData, setFormData] = useState({
-    name: '',
-    room: '',
+    residentId: '',
+    fullName: '',
     phone: '',
-    licensePlate: '',
-    email: '',
+    birthYear: '',
+    status: 'active',
   });
 
   useEffect(() => {
     if (resident) {
       setFormData({
-        name: resident.name || '',
-        room: resident.room || '',
+        residentId: resident.id || '',
+        fullName: resident.name || '',
         phone: resident.phone || '',
-        licensePlate: resident.licensePlate || '',
-        email: resident.email || '',
+        birthYear: resident.birthYear || '',
+        status: resident.status || 'active',
       });
     } else {
       setFormData({
-        name: '',
-        room: '',
+        residentId: '',
+        fullName: '',
         phone: '',
-        licensePlate: '',
-        email: '',
+        birthYear: '',
+        status: 'active',
       });
     }
   }, [resident]);
@@ -40,10 +40,10 @@ export default function ResidentForm({ resident, onSave, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name && formData.room && formData.phone) {
+    if (formData.fullName && formData.phone) {
       onSave(formData);
     } else {
-      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+      alert('Vui lòng điền đầy đủ họ tên và số điện thoại');
     }
   };
 
@@ -61,74 +61,73 @@ export default function ResidentForm({ resident, onSave, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="resident-form-body">
-          {resident?.userId && (
-            <div className="form-group form-readonly">
-              <label>ID người dùng</label>
-              <input type="text" value={resident.userId} readOnly disabled className="input-readonly" />
+          <div className="form-grid-2col">
+            <div className="form-group">
+              <label htmlFor="residentId">ID người dùng *</label>
+              <input
+                type="number"
+                id="residentId"
+                name="residentId"
+                value={formData.residentId}
+                onChange={handleChange}
+                placeholder="Nhập ID (VD: 10)"
+                required
+                readOnly={!!resident}
+                className={resident ? 'input-readonly' : ''}
+              />
             </div>
-          )}
 
-          <div className="form-group">
-            <label htmlFor="name">Họ và tên *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Nhập họ tên"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="fullName">Họ và tên *</label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Nhập họ tên"
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="room">Phòng *</label>
-            <input
-              type="text"
-              id="room"
-              name="room"
-              value={formData.room}
-              onChange={handleChange}
-              placeholder="VD: 101"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="phone">Số điện thoại *</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="VD: 0901234567"
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="phone">Điện thoại *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="VD: 0912345678"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="birthYear">Năm sinh</label>
+              <input
+                type="number"
+                id="birthYear"
+                name="birthYear"
+                value={formData.birthYear}
+                onChange={handleChange}
+                placeholder="VD: 2002"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="licensePlate">Biển số xe</label>
-            <input
-              type="text"
-              id="licensePlate"
-              name="licensePlate"
-              value={formData.licensePlate}
-              onChange={handleChange}
-              placeholder="VD: 51H-123.45"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="email@example.com"
-            />
+            <div className="form-group">
+              <label htmlFor="status">Trạng thái</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="form-select-modern"
+              >
+                <option value="active">Hoạt động</option>
+                <option value="inactive">Tạm khóa</option>
+              </select>
+            </div>
           </div>
 
           <div className="resident-form-actions">

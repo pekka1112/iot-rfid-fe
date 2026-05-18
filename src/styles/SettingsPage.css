@@ -1,18 +1,13 @@
 .settings-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
 }
 
 .settings-toolbar-card {
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
-  padding: 22px 24px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  padding: 15px 24px;
 }
 
 .settings-title-block {
@@ -37,7 +32,7 @@
 
 .settings-panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 20px;
   align-items: start;
 }
@@ -274,4 +269,117 @@
   .toggle-switch-modern {
     align-self: flex-end;
   }
+}
+
+/* Backup Modal */
+.backup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.backup-modal {
+  width: min(600px, 100%);
+  max-height: min(90vh, 700px);
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  position: relative;
+  animation: slideUp 0.25s ease;
+}
+
+.backup-modal-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backup-modal-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.backup-close-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.backup-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.backup-modal-body {
+  padding: 0;
+  overflow-y: auto;
+}
+
+.backup-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.backup-table th {
+  background: #f8fafc;
+  padding: 14px 24px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.backup-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+.backup-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.backup-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.backup-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
 }

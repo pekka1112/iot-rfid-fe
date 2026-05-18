@@ -11,48 +11,57 @@
 .residents-toolbar-card {
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
-  padding: 20px 22px;
+  border-radius: 12px;
+  padding: 12px 16px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
-.residents-toolbar-top {
+.residents-toolbar-inner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+}
+
+.residents-actions-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .residents-title-block {
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .residents-page-title {
   margin: 0;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: #0f172a;
 }
 
 .residents-page-subtitle {
-  margin: 4px 0 0;
-  font-size: 13px;
+  margin: 2px 0 0;
+  font-size: 12px;
   color: #64748b;
 }
 
 .btn-add-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
+  gap: 6px;
+  padding: 8px 14px;
   background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -67,13 +76,6 @@
 
 .btn-add-icon {
   display: inline-flex;
-}
-
-.residents-toolbar-bottom {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
 }
 
 .search-box-modern {
@@ -176,7 +178,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 9999;
   padding: 20px;
   animation: fadeIn 0.2s ease;
 }

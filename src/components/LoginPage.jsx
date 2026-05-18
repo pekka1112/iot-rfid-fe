@@ -10,20 +10,19 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
+  // xử lí khi user ấn login BUTTON
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
-
     if (!username || !password) {
-      setError('Vui lòng nhập tên đăng nhập và mật khẩu');
+      setError('Chưa nhập Username / Password.');
       return;
     }
-
     setIsLoading(true);
     setTimeout(() => {
       const success = login(username, password, rememberMe);
       if (!success) {
-        setError('Tên đăng nhập hoặc mật khẩu không chính xác');
+        setError('Username / Password không chính xác');
       }
       setIsLoading(false);
     }, 500);
@@ -39,23 +38,15 @@ export default function LoginPage() {
             className="login-brand-bg"
           />
           <div className="login-brand-overlay" />
-          <div className="login-brand-content">
-            <p className="login-brand-kicker">IoT · RFID</p>
-            <h2 className="login-brand-title">Quản lý tòa nhà thông minh</h2>
-            <p className="login-brand-text">Ra vào an toàn, đồng bộ dữ liệu theo thời gian thực</p>
-          </div>
         </div>
 
         <div className="login-form-panel">
           <div className="login-card">
             <div className="login-card-header">
-              <h1 className="login-title">Đăng nhập</h1>
-              <p className="login-subtitle">Hệ thống quản lý RFID</p>
+              <p className="login-title">Hệ thống quản lý RFID</p>
             </div>
-
             <form onSubmit={handleSubmit} className="login-form">
               <div className="login-field">
-                <label htmlFor="username">Tên đăng nhập</label>
                 <input
                   type="text"
                   id="username"
@@ -68,7 +59,6 @@ export default function LoginPage() {
               </div>
 
               <div className="login-field">
-                <label htmlFor="password">Mật khẩu</label>
                 <input
                   type="password"
                   id="password"
@@ -86,14 +76,9 @@ export default function LoginPage() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span>Ghi nhớ đăng nhập</span>
+                <span>Nhớ tài khoản này</span>
               </label>
-              <p className="login-remember-hint">
-                Khi bật, phiên đăng nhập được lưu trên trình duyệt; chỉ mất khi bạn đăng xuất.
-              </p>
-
               {error && <div className="login-error">{error}</div>}
-
               <button type="submit" className="login-submit" disabled={isLoading}>
                 {isLoading && <span className="login-spinner" aria-hidden />}
                 <span>{isLoading ? 'Đang đăng nhập…' : 'Đăng nhập'}</span>
@@ -101,7 +86,9 @@ export default function LoginPage() {
             </form>
 
             <p className="login-footnote">
-              Hệ thống quản lý ra vào cư dân với công nghệ RFID
+              * Hệ thống quản lý ra vào cư dân với công nghệ IoT · RFID  <br />
+              Quản lý tòa nhà thông minh <br />
+              Ra vào an toàn, đồng bộ dữ liệu theo thời gian thực
             </p>
           </div>
         </div>

@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 300;
+  z-index: 9999;
   padding: 20px;
 }
 
@@ -14,7 +14,7 @@
   background: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 680px;
   max-height: min(90vh, 640px);
   overflow-y: auto;
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
@@ -130,23 +130,49 @@
 }
 
 .btn-form-cancel {
-  background: #f1f5f9;
-  color: #475569;
-  border-color: rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  color: #64748b;
+  border-color: #e2e8f0;
 }
 
 .btn-form-cancel:hover {
-  background: #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .btn-form-save {
-  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  background: #0f172a;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
 .btn-form-save:hover {
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  background: #1e293b;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+}
+
+.form-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.form-select-modern {
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0f172a;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.form-select-modern:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 @media (max-width: 768px) {

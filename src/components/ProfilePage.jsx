@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import '../styles/ProfilePage.css';
 
 export default function ProfilePage() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [previewAvatar, setPreviewAvatar] = useState('');
@@ -93,25 +93,8 @@ export default function ProfilePage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleLogout = () => {
-    if (confirm('Bạn có chắc muốn đăng xuất?')) {
-      logout();
-    }
-  };
-
   return (
     <div className="profile-page">
-      <div className="profile-toolbar-card">
-        <div className="profile-toolbar-inner">
-          <div>
-            <h1 className="profile-page-title">Hồ sơ cá nhân</h1>
-            <p className="profile-page-subtitle">Thông tin tài khoản và ảnh đại diện</p>
-          </div>
-          <button type="button" className="profile-btn-logout" onClick={handleLogout}>
-            Đăng xuất
-          </button>
-        </div>
-      </div>
 
       <div className="profile-layout-card">
         <aside className="profile-aside">

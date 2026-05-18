@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React from 'react';
 import '../styles/Sidebar.css';
 
 function NavIcon({ children }) {
@@ -10,41 +9,10 @@ function NavIcon({ children }) {
   );
 }
 
-export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseMobile }) {
-  const { user, logout } = useAuth();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const menuRef = useRef(null);
-
-  const handleAvatarClick = () => {
-    setShowUserMenu(!showUserMenu);
-  };
-
-  const handleViewProfile = () => {
-    handleMenuChange('profile');
-    setShowUserMenu(false);
-  };
-
+export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseMobile, isCollapsed, onToggleCollapse, onToggleChat }) {
   const handleLogoClick = () => {
     onMenuChange('search');
   };
-
-  const handleLogout = () => {
-    if (confirm('Bạn có chắc muốn đăng xuất?')) {
-      logout();
-      setShowUserMenu(false);
-    }
-  };
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowUserMenu(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleMenuChange = (menu) => {
     onMenuChange(menu);
@@ -54,31 +22,26 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
   };
 
   return (
-    <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
-      <div className="sidebar-inner">
+    <>
+      {mobileOpen && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
+      )}
+      <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-inner">
         <div className="sidebar-brand">
-          <button type="button" className="logo-btn" onClick={handleLogoClick} title="Tìm kiếm">
-            <img src="logo-building.svg" alt="" className="logo-image" />
+          <button type="button" className="logo-btn" onClick={handleLogoClick} title="Trang chủ">
+            <img src="icon.png" alt="" className="logo-image" />
           </button>
-          <span className="brand-title">IoT RFID</span>
-        </div>
-
-        <div className="user-info-wrapper" ref={menuRef}>
-          <button type="button" className="user-info" onClick={handleAvatarClick}>
-            <img src={user?.avatar} alt="" className="user-avatar" />
-            <span className="user-name">{user?.username ?? '—'}</span>
+          {!isCollapsed && <span className="brand-title">RFID System</span>}
+          <button type="button" className="collapse-toggle-btn" onClick={onToggleCollapse} title={isCollapsed ? "Mở rộng" : "Thu gọn"}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? "rotate-180" : ""}>
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
-
-          {showUserMenu && (
-            <div className="user-menu">
-              <button type="button" className="user-menu-item" onClick={handleViewProfile}>
-                Hồ sơ
-              </button>
-              <button type="button" className="user-menu-item logout" onClick={handleLogout}>
-                Đăng xuất
-              </button>
-            </div>
-          )}
         </div>
 
         <nav className="menu" aria-label="Điều hướng chính">
@@ -95,7 +58,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <rect x="14" y="14" width="7" height="7" rx="1.5" />
               </svg>
             </NavIcon>
-            <span className="menu-label">Tổng quan</span>
+            {!isCollapsed && <span className="menu-label">Dashboard</span>}
           </button>
           <button
             type="button"
@@ -110,7 +73,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </NavIcon>
-            <span className="menu-label">Người dùng</span>
+            {!isCollapsed && <span className="menu-label">Người dùng</span>}
           </button>
           <button
             type="button"
@@ -123,7 +86,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <circle cx="12" cy="13" r="4" />
               </svg>
             </NavIcon>
-            <span className="menu-label">Camera</span>
+            {!isCollapsed && <span className="menu-label">Camera</span>}
           </button>
           <button
             type="button"
@@ -136,7 +99,20 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <path d="M12 6v6l4 2" />
               </svg>
             </NavIcon>
-            <span className="menu-label">Lịch sử</span>
+            {!isCollapsed && <span className="menu-label">Lịch sử</span>}
+          </button>
+          <button
+            type="button"
+            className={`menu-item ${activeMenu === 'rfid' ? 'active' : ''}`}
+            onClick={() => handleMenuChange('rfid')}
+          >
+            <NavIcon>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" ry="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            </NavIcon>
+            {!isCollapsed && <span className="menu-label">Thẻ RFID</span>}
           </button>
           <button
             type="button"
@@ -149,10 +125,28 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </NavIcon>
-            <span className="menu-label">Cài đặt</span>
+            {!isCollapsed && <span className="menu-label">Cài đặt</span>}
           </button>
         </nav>
+
+        <div style={{ flex: 1 }} />
+        
+        <div className="sidebar-bottom" style={{ padding: '0 0 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={onToggleChat}
+          >
+            <NavIcon>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </NavIcon>
+            {!isCollapsed && <span className="menu-label">Chat AI</span>}
+          </button>
+        </div>
       </div>
     </aside>
+    </>
   );
 }

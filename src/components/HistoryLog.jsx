@@ -20,10 +20,12 @@ export default function HistoryLog({ data }) {
             <tr>
               <th>Cư dân</th>
               <th>Phòng</th>
+              <th>Biển số xe</th>
               <th>Hành động</th>
+              <th>Xác thực</th>
               <th>Giờ</th>
               <th>Ngày</th>
-              <th>Cửa</th>
+              <th>Camera</th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +38,10 @@ export default function HistoryLog({ data }) {
                     </span>
                     <span className="history-name-text">{item.name}</span>
                   </td>
-                  <td>{item.room}</td>
+                  <td>{item.room || '—'}</td>
+                  <td>
+                    <span className="history-door-pill" style={{ fontWeight: 600 }}>{item.vehiclePlate || '—'}</span>
+                  </td>
                   <td>
                     <span
                       className={`history-action-pill ${
@@ -50,8 +55,13 @@ export default function HistoryLog({ data }) {
                       {item.action}
                     </span>
                   </td>
+                  <td style={{ fontSize: '1.2rem', letterSpacing: '4px' }}>
+                    {item.faceMatch ? <span title="Khớp khuôn mặt">🧑</span> : ''}
+                    {item.plateMatch ? <span title="Khớp biển số">🚗</span> : ''}
+                    {!item.faceMatch && !item.plateMatch ? <span title="Không xác thực">—</span> : ''}
+                  </td>
                   <td className="history-td-mono">{item.time}</td>
-                  <td className="history-td-mono">{item.date}</td>
+                  <td className="history-td-mono">{item.dateFormatted || item.date}</td>
                   <td>
                     <span className="history-door-pill">{item.door}</span>
                   </td>

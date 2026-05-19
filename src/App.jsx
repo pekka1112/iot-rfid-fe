@@ -12,6 +12,7 @@ import SettingsPage from './components/SettingsPage';
 import RfidCardsPage from './components/RfidCardsPage';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
+import DashboardPanels from './components/DashboardPanels';
 import AIChat from './components/AIChat';
 import './App.css';
 
@@ -23,6 +24,7 @@ function AppContent() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
+  const [fireAlert, setFireAlert] = useState(false);
 
   const [stats] = useState({
     totalResidents: 150,
@@ -57,35 +59,47 @@ function AppContent() {
     }
   };
 
+  const fetchFireStatus = async () => {
+    try {
+      // Gọi API kiểm tra trạng thái cảm biến cháy từ Spring Boot
+      const response = await axios.get('http://localhost:8080/api/sensor/fire');
+      if (response.data && response.data.isFire) {
+        setFireAlert(true);
+      } else {
+        setFireAlert(false);
+      }
+    } catch (error) {
+      // Bỏ qua nếu backend chưa có API này, bạn có thể comment dòng setFireAlert(true) dưới đây để test UI
+      // setFireAlert(true); // Uncomment để test giao diện cảnh báo cháy
+    }
+  };
+
   useEffect(() => {
     // Tự động cập nhật mỗi 5 giây
     const interval = setInterval(() => {
       fetchScannedData();
+      fetchFireStatus();
     }, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleDoorOpen = async (id) => {
-    try {
-      // Gọi API xuống Spring Boot để mở relay
-      await axios.post('http://localhost:8080/api/relay/open', { cameraId: id });
-    } catch (error) {
-      console.error('Lỗi khi gọi API mở cửa:', error);
-    }
-
+  const setDoorByRelay = (id, relayValue) => {
+    const isOpen = relayValue === 'OPEN';
     setCameras((prev) =>
       prev.map((camera) =>
         camera.id === id
-          ? { ...camera, doorOpen: true }
+          ? { ...camera, doorOpen: isOpen }
           : camera
       )
     );
+
     const cameraName = id === 1 ? 'Cửa Vào' : 'Cửa Ra';
+    const actionName = isOpen ? 'mở' : 'đóng';
     const newNotif = {
       id: Date.now(),
-      message: `${cameraName} đã được mở`,
+      message: `${cameraName} đã được ${actionName}`,
       timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-      type: 'open'
+      type: isOpen ? 'open' : 'close'
     };
     setNotifications((prev) => [newNotif, ...prev]);
     setToasts((prev) => [...prev, newNotif]);
@@ -94,33 +108,30 @@ function AppContent() {
     }, 3000);
   };
 
+  const handleDoorOpen = async (id) => {
+    try {
+      const response = await axios.post('http://localhost:8000/relay/OPEN');
+      if (response.data?.status === 'success' && response.data.relay) {
+        setDoorByRelay(id, response.data.relay);
+      } else {
+        console.error('API mở cửa trả về dữ liệu không hợp lệ:', response.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi gọi API mở cửa:', error);
+    }
+  };
+
   const handleDoorClose = async (id) => {
     try {
-      // Gọi API xuống Spring Boot để đóng relay
-      await axios.post('http://localhost:8080/api/relay/close', { cameraId: id });
+      const response = await axios.post('http://localhost:8000/relay/CLOSE');
+      if (response.data?.status === 'success' && response.data.relay) {
+        setDoorByRelay(id, response.data.relay);
+      } else {
+        console.error('API đóng cửa trả về dữ liệu không hợp lệ:', response.data);
+      }
     } catch (error) {
       console.error('Lỗi khi gọi API đóng cửa:', error);
     }
-
-    setCameras((prev) =>
-      prev.map((camera) =>
-        camera.id === id
-          ? { ...camera, doorOpen: false }
-          : camera
-      )
-    );
-    const cameraName = id === 1 ? 'Cửa Vào' : 'Cửa Ra';
-    const newNotif = {
-      id: Date.now(),
-      message: `${cameraName} đã được đóng`,
-      timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-      type: 'close'
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
-    setToasts((prev) => [...prev, newNotif]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== newNotif.id));
-    }, 3000);
   };
 
   if (!hydrated) {
@@ -155,13 +166,14 @@ function AppContent() {
           onMenuChange={setActiveMenu}
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
+          fireAlert={fireAlert}
         />
 
         {activeMenu === 'menu' && (
           <div className="page-content">
             <div className="content-area">
-              <div className="dashboard-stats" style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                <div className="stat-card" style={{ flex: '1.5', minWidth: '260px', background: '#fff', padding: '16px 24px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="dashboard-stats" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div className="stat-card" style={{ flex: '1.5', minWidth: '260px', background: '#fff', padding: '5px 12px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '16px', color: '#64748b', fontWeight: '600' }}></div>
                   <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }} title={cameras[0].doorOpen ? 'Vào: Mở' : 'Vào: Đóng'}>
@@ -190,47 +202,24 @@ function AppContent() {
                     </div>
                   </div>
                 </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '12px 18px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Số người dùng</div>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalResidents}</div>
                 </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '12px 18px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng khách</div>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalGuests}</div>
                 </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '12px 18px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Số người vào</div>
+                <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi vào</div>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalGuests}</div>
                 </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '12px 18px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Số người ra</div>
+                <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi ra</div>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.residentCount}</div>
                 </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', marginTop: '8px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: 0 }}>Nhận diện khu vực cửa</h2>
-                <button 
-                  onClick={fetchScannedData}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#3b82f6',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v6h6"/>
-                  </svg>
-                  Làm mới dữ liệu RFID
-                </button>
-              </div>
+                  
+                </div>
 
               <div className="cameras-grid">
                 {cameras.map((camera) => (
@@ -246,8 +235,8 @@ function AppContent() {
                 ))}
               </div>
 
-              <div className="warning-container">
-                <WarningBox message="Cảnh báo cháy" />
+              <div className="dashboard-panels-container">
+                <DashboardPanels />
               </div>
             </div>
           </div>

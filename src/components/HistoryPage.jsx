@@ -64,13 +64,12 @@ export default function HistoryPage() {
       <div className="history-toolbar-card">
         <div className="history-toolbar-inner">
           <div className="history-title-block">
-            <h1 className="history-page-title">Lịch sử ra vào</h1>
-            <p className="history-page-subtitle">Nhật ký qua cửa theo ngày hoặc tìm theo tên, phòng</p>
+            <p className="history-page-subtitle">Nhật ký qua cửa theo ngày hoặc tìm theo tên</p>
           </div>
 
           <div className="history-actions-block">
-            <div className="history-date-field" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label htmlFor="history-date" style={{ fontWeight: 500, fontSize: '0.9rem', color: '#64748b' }}>Ngày:</label>
+            
+            <div className="history-date-field" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               <input
                 type="date"
                 id="history-date"
@@ -80,7 +79,7 @@ export default function HistoryPage() {
               />
             </div>
 
-            <div className="history-search-box" style={{ marginLeft: '12px' }}>
+            <div className="history-search-box" style={{ marginLeft: '0px' }}>
               <span className="history-search-icon" aria-hidden>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
@@ -89,7 +88,7 @@ export default function HistoryPage() {
               </span>
               <input
                 type="search"
-                placeholder="Tìm tên, phòng, biển số..."
+                placeholder="Tìm tên, biển số..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="history-search-input"

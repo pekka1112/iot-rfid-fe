@@ -51,7 +51,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
     <div className="resident-form-overlay" onClick={onClose}>
       <div className="resident-form-modal" onClick={(e) => e.stopPropagation()}>
         <div className="resident-form-modal-head">
-          <h2>{resident ? 'Chỉnh sửa cư dân' : 'Thêm cư dân mới'}</h2>
+          <h2>{resident ? 'Chỉnh sửa cư dân' : 'Thêm cư dân mới : '}</h2>
           <button type="button" className="resident-form-close" onClick={onClose} aria-label="Đóng">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -63,7 +63,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
         <form onSubmit={handleSubmit} className="resident-form-body">
           <div className="form-grid-2col">
             <div className="form-group">
-              <label htmlFor="residentId">ID người dùng *</label>
+              <label htmlFor="residentId">ID* (Băt buộc)</label>
               <input
                 type="number"
                 id="residentId"
@@ -74,11 +74,12 @@ export default function ResidentForm({ resident, onSave, onClose }) {
                 required
                 readOnly={!!resident}
                 className={resident ? 'input-readonly' : ''}
+                style={{border : '1px dashed red'}}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="fullName">Họ và tên *</label>
+              <label htmlFor="fullName">Họ và tên* (Băt buộc)</label>
               <input
                 type="text"
                 id="fullName"
@@ -86,12 +87,13 @@ export default function ResidentForm({ resident, onSave, onClose }) {
                 value={formData.fullName}
                 onChange={handleChange}
                 placeholder="Nhập họ tên"
+                style={{border : '1px dashed red'}}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">Số điện thoại *</label>
+              <label htmlFor="phone">Số điện thoại</label>
               <input
                 type="tel"
                 id="phone"

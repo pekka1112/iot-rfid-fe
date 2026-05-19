@@ -11,7 +11,7 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
   return (
     <div className="resident-list-modern">
       <div className="resident-list-header-row">
-        <h2 className="resident-list-heading">Danh sách người dùng</h2>
+        <h2 className="resident-list-heading">Danh sách người dùng đã đăng ký thông tin trong hệ thống</h2> 
       </div>
       <div className="resident-table-wrap">
         <table className="residents-table-modern">
@@ -19,11 +19,11 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
             <tr>
               <th className="th-checkbox"><input type="checkbox" /></th>
               <th className="th-id">ID</th>
-              <th className="th-name">Người dùng</th>
+              <th className="th-name">Tên người dùng</th>
               <th>Điện thoại</th>
               <th>Biển số xe</th>
               <th>Trạng thái</th>
-              <th className="th-action">Tùy chỉnh</th>
+              <th className="th-action">hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -46,12 +46,11 @@ export default function ResidentList({ residents, selectedResident, onSelectResi
                     </span>
                     <span className="resident-name-block">
                       <span className="resident-name-text">{resident.name}</span>
-                      <span className="resident-name-sub">Người dùng</span>
                     </span>
                   </td>
                   <td className="td-phone">{resident.phone}</td>
                   <td>
-                    <span className="plate-pill">{resident.licensePlate || '—'}</span>
+                    <span className="plate-pill">{resident.licensePlate || 'Chưa đăng ký'}</span>
                   </td>
                   <td>
                     <span className={`status-badge ${resident.status === 'active' ? 'active' : 'inactive'}`}>

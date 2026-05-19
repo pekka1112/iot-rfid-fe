@@ -2,10 +2,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 5px 20px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
-  height: 80px;
+  /* height: 80px; */
   position: sticky;
   top: 0;
   z-index: 99;

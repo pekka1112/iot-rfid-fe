@@ -139,10 +139,12 @@ export default function ResidentsPage() {
       <div className="residents-toolbar-card">
         <div className="residents-toolbar-inner">
           <div className="residents-title-block">
-            <h1 className="residents-page-title">Quản lý người dùng</h1>
             <p className="residents-page-subtitle">
-              {filteredResidents.length} người dùng
-              {searchTerm ? ` (lọc theo tìm kiếm)` : ''}
+              Số người dùng:{' '}
+              <span style={{ fontSize: '1.5em', color: '#ef4444', fontWeight: '700' }}>
+                {filteredResidents.length}
+              </span>
+              {searchTerm ? ` ( thay đổi theo tìm kiếm )` : ''}
             </p>
           </div>
 
@@ -171,7 +173,7 @@ export default function ResidentsPage() {
                   <line x1="23" y1="11" x2="17" y2="11" />
                 </svg>
               </span>
-              Thêm mới
+              Thêm
             </button>
           </div>
         </div>
@@ -189,71 +191,113 @@ export default function ResidentsPage() {
       </div>
 
       {showDetailModal && selectedResident && (
-        <div className="resident-detail-overlay" onClick={() => setShowDetailModal(false)}>
-          <div className="resident-detail-panel" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="detail-panel-close" onClick={() => setShowDetailModal(false)} aria-label="Đóng">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            <div className="detail-panel-hero">
-              <div className="detail-hero-avatar">{detailInitial}</div>
-              <div className="detail-hero-text">
-                <span className="detail-hero-badge">ID {selectedResident.id}</span>
-                <h2 className="detail-hero-name">{selectedResident.name}</h2>
-                <p className="detail-hero-meta">
-                  {selectedResident.phone}
-                </p>
-              </div>
+        <div className="resident-detail-overlay" onClick={() => setShowDetailModal(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', zIndex: 1000 }}>
+          <div className="resident-detail-panel" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#fff', borderRadius: '16px', width: '100%', maxWidth: '550px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', overflow: 'hidden' }}>
+            
+            {/* Header Modal */}
+            <div className="detail-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 30px', borderBottom: '1px solid #f1f5f9' }}>
+              <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: '500', color: '#0f172a' }}>Chi tiết người dùng</h2>
+              <button type="button" onClick={() => setShowDetailModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
-            <div className="detail-info-grid">
-              <div className="detail-info-cell">
-                <span className="detail-info-label">ID người dùng</span>
-                <span className="detail-info-value detail-mono">{selectedResident.id}</span>
+            {/* Content Body: Thông tin (trái) - Hình ảnh (phải) */}
+            <div className="detail-modal-body" style={{ display: 'flex', padding: '24px', gap: '24px' }}>
+              {/* Bên trái: Thông tin (chiếm phần lớn không gian) */}
+              <div className="detail-info-left" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Họ và tên</span>
+                  <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a' }}>{selectedResident.name}</span>
+                </div>
+                
+                {/* Khung bao quanh 4 thông tin */}
+                <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', backgroundColor: '#f8fafc' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Điện thoại</span>
+                    <span style={{ fontSize: '0.95rem', color: '#334155', fontWeight: '600' }}>{selectedResident.phone}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Biển số xe</span>
+                    {selectedResident.licensePlate ? (
+                      <span className="plate-badge" style={{ backgroundColor: '#fff', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '600', color: '#0f172a' }}>
+                        {selectedResident.licensePlate}
+                      </span>
+                    ) : (
+                      <span style={{ color: '#94a3b8' }}>—</span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>ID Người dùng</span>
+                    <span className="detail-mono" style={{ fontFamily: 'monospace', backgroundColor: '#fff', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '4px', fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>
+                      {selectedResident.id}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Ngày thêm</span>
+                    <span style={{ fontSize: '0.95rem', color: '#334155', fontWeight: '500' }}>{selectedResident.createdAt}</span>
+                  </div>
+                </div>
               </div>
-              <div className="detail-info-cell">
-                <span className="detail-info-label">Biển số xe</span>
-                <span className="detail-info-value">
-                  <span className="plate-badge">{selectedResident.licensePlate || '—'}</span>
+
+              {/* Bên phải: Hình đại diện */}
+              <div className="detail-avatar-right" style={{ width: '160px', display: 'flex', flexDirection: 'column', alignItems: 'center', borderLeft: '1px solid #f1f5f9', paddingLeft: '24px', justifyContent: 'center' }}>
+                {/* Avatar to hơn và có position relative để gắn badge */}
+                <div style={{ position: 'relative', width: '120px', height: '120px', marginBottom: '16px' }}>
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.5rem', fontWeight: 'bold', boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)' }}>
+                    {detailInitial}
+                  </div>
+                  
+                  {/* Trạng thái ở góc trên bên trái */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '32px', height: '32px', borderRadius: '50%', backgroundColor: selectedResident.status === 'active' ? '#10b981' : '#ef4444', border: '3px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} title={selectedResident.status === 'active' ? 'Đang hoạt động' : 'Bị khóa'}>
+                    {selectedResident.status === 'active' ? (
+                      <span style={{ width: '12px', height: '12px', backgroundColor: '#fff', borderRadius: '50%' }}></span>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                
+                <span style={{ backgroundColor: '#e0e7ff', color: '#4338ca', padding: '6px 16px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: '700' }}>
+                  ID {selectedResident.id}
                 </span>
               </div>
-              <div className="detail-info-cell">
-                <span className="detail-info-label">Điện thoại</span>
-                <span className="detail-info-value">{selectedResident.phone}</span>
-              </div>
-              <div className="detail-info-cell">
-                <span className="detail-info-label">Ngày thêm</span>
-                <span className="detail-info-value">{selectedResident.createdAt}</span>
-              </div>
-              <div className="detail-info-cell detail-info-wide">
-                <span className="detail-info-label">Email</span>
-                <span className="detail-info-value">{selectedResident.email || '—'}</span>
-              </div>
             </div>
 
-            <div className="detail-panel-actions">
+            {/* Footer Actions */}
+            <div className="detail-modal-footer" style={{ padding: '16px 24px', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #e2e8f0' }}>
               <button
                 type="button"
-                className="detail-btn detail-btn-ghost"
                 onClick={() => {
                   handleEditResident(selectedResident);
                   setShowDetailModal(false);
                 }}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#fff', color: '#334155', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
               >
-                Chỉnh sửa hồ sơ
+                Chỉnh sửa
               </button>
               <button
                 type="button"
-                className="detail-btn detail-btn-danger"
                 onClick={() => {
                   handleDeleteResident(selectedResident.id);
                   setShowDetailModal(false);
                 }}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#ef4444', color: 'white', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.2s', fontSize: '0.9rem' }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
               >
-                Xóa người dùng
+                Xóa
               </button>
             </div>
           </div>

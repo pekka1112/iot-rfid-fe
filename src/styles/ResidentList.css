@@ -3,16 +3,17 @@
 }
 
 .resident-list-header-row {
-  padding: 18px 20px 12px;
+  padding: 15px 20px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .resident-list-heading {
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
+  /* font-weight: 700; */
   color: #0f172a;
   letter-spacing: -0.02em;
+  text-align: left;
 }
 
 .resident-table-wrap {
@@ -49,9 +50,10 @@
 }
 
 .residents-table-modern tbody tr {
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  border-bottom: 1px groove rgba(15, 23, 42, 0.06);
   cursor: pointer;
   transition: background 0.15s ease;
+  text-align: left;
 }
 
 .residents-table-modern tbody tr:last-child {

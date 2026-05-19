@@ -50,13 +50,13 @@ export default function RfidCardsPage() {
           <div className="history-title-block">
             <h1 className="history-page-title">Quản lý thẻ RFID</h1>
             <p className="history-page-subtitle">
-              Danh sách thẻ RFID quét qua hệ thống
+              ( Danh sách thẻ RFID quét qua hệ thống )
             </p>
           </div>
           
           <div className="history-actions-block">
-            <div className="search-box-modern" style={{ margin: 0 }}>
-              <span className="search-icon" aria-hidden>
+            <div className="history-search-box" style={{ margin: 0 }}>
+              <span className="history-search-icon" aria-hidden>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -67,7 +67,7 @@ export default function RfidCardsPage() {
                 placeholder="Tìm theo ID thẻ, biển số..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input-modern"
+                className="history-search-input"
               />
             </div>
             <button type="button" className="btn-export-primary" onClick={() => alert('Đang xuất dữ liệu')}>
@@ -91,8 +91,8 @@ export default function RfidCardsPage() {
               <tr>
                 <th>ID Thẻ</th>
                 <th>Biển số xe</th>
-                <th>Thời gian (Time)</th>
-                <th>Chiều xe</th>
+                <th style={{ textAlign: 'center' }}>Thời gian (Time)</th>
+                <th style={{ textAlign: 'center' }}>Chiều xe</th>
               </tr>
             </thead>
             <tbody>
@@ -115,16 +115,17 @@ export default function RfidCardsPage() {
                     <td>
                       {row.licensePlate ? <span className="plate-badge" style={{ display: 'inline-block', padding: '4px 10px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 700, fontSize: '13px' }}>{row.licensePlate}</span> : '—'}
                     </td>
-                    <td style={{ fontWeight: 500, color: '#475569' }}>{row.time || '—'}</td>
-                    <td>
+                    <td style={{ fontWeight: 500, color: '#475569', textAlign: 'center' }}>{row.time || '—'}</td>
+                    <td style={{ textAlign: 'center' }}>
                       <span className={`status-badge ${row.direction === 'Vào' ? 'status-in' : row.direction === 'Ra' ? 'status-out' : ''}`} style={{ 
                         display: 'inline-block', 
-                        padding: '4px 10px', 
-                        borderRadius: '6px', 
-                        fontSize: '12px', 
-                        fontWeight: 600,
+                        padding: '6px 14px', 
+                        borderRadius: '8px', 
+                        fontSize: '13px', 
+                        fontWeight: 700,
                         backgroundColor: row.direction === 'Vào' ? '#dcfce7' : row.direction === 'Ra' ? '#fee2e2' : '#f1f5f9',
-                        color: row.direction === 'Vào' ? '#16a34a' : row.direction === 'Ra' ? '#dc2626' : '#64748b'
+                        color: row.direction === 'Vào' ? '#16a34a' : row.direction === 'Ra' ? '#dc2626' : '#64748b',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                       }}>
                         {row.direction || '—'}
                       </span>

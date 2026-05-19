@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/CameraCard.css';
 
 export default function CameraCard({ title, isActive, doorOpen, currentUser, onOpen, onClose }) {
@@ -13,6 +13,32 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
   const isActiveUser = isActive && currentUser;
   const avatarLetter = currentUser?.name?.split(' ').slice(-1)[0]?.[0] ?? '?';
 
+  // Cấu hình Camera
+  const IP_CAMERA = "192.168.1.108";
+  const CAM_USER = "admin";
+  const CAM_PASS = "Abc123456";
+  
+  // Trạng thái timestamp để cập nhật ảnh (tạo hiệu ứng video giả)
+  const [timestamp, setTimestamp] = useState(Date.now());
+
+  useEffect(() => {
+    let interval;
+    if (isActive) {
+      // Làm mới ảnh mỗi 1 giây (1000ms) khi camera đang bật
+      interval = setInterval(() => {
+        setTimestamp(Date.now());
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  // URL hiển thị ảnh từ camera. 
+  // Đối với một số dòng camera phổ biến (Dahua, Kbvision...), URL snapshot có dạng:
+  // http://admin:pass@ip/cgi-bin/snapshot.cgi
+  // Hoặc luồng MJPEG: http://admin:pass@ip/cgi-bin/mjpg/video.cgi?subtype=1
+  // *Lưu ý: Nếu trình duyệt chặn format http://user:pass@ip, bạn có thể cần cấu hình backend proxy.
+  const cameraImageUrl = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/cgi-bin/snapshot.cgi?timestamp=${timestamp}`;
+
   return (
     <div className="camera-card">
       <div className={`camera-display ${isActive ? 'active' : 'inactive'}`}>
@@ -23,8 +49,27 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
           </span>
         </div>
 
-        <div className="camera-preview">
-          <div className="camera-preview-badge">{isActive ? 'LIVE' : 'OFF'}</div>
+        <div className="camera-preview" style={{ position: 'relative', overflow: 'hidden' }}>
+          {isActive ? (
+            <img 
+              src={cameraImageUrl} 
+              alt="Camera Feed"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => {
+                // Thử dự phòng với Hikvision nếu Dahua lỗi
+                if (!e.target.dataset.triedHikvision) {
+                  e.target.dataset.triedHikvision = true;
+                  e.target.src = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/ISAPI/Streaming/channels/101/picture?timestamp=${timestamp}`;
+                } else if (!e.target.dataset.triedGeneric) {
+                  e.target.dataset.triedGeneric = true;
+                  e.target.src = `http://${IP_CAMERA}/snapshot.cgi?user=${CAM_USER}&pwd=${CAM_PASS}&t=${timestamp}`;
+                }
+              }}
+            />
+          ) : null}
+          <div className="camera-preview-badge" style={{ position: 'absolute', top: 12, left: 12, zIndex: 10 }}>
+            {isActive ? 'LIVE' : 'OFF'}
+          </div>
         </div>
       </div>
 

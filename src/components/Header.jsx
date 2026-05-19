@@ -2,12 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Header.css';
 
-export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications }) {
+export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false }) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showFirePopup, setShowFirePopup] = useState(false);
   const menuRef = useRef(null);
   const notifRef = useRef(null);
+  const fireRef = useRef(null);
+
+  // Tự động bật popup nếu có cảnh báo cháy từ backend
+  useEffect(() => {
+    if (fireAlert) {
+      setShowFirePopup(true);
+    }
+  }, [fireAlert]);
 
   const handleAvatarClick = () => {
     setShowUserMenu(!showUserMenu);
@@ -39,6 +48,9 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
+      if (fireRef.current && !fireRef.current.contains(event.target)) {
+        setShowFirePopup(false);
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -47,7 +59,8 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
 
   return (
     <header className="header">
-      <div className="header-left">
+
+      <div className="header-left" >
         <button className="mobile-menu-toggle" onClick={onToggleMobileSidebar} aria-label="Mở menu">
           ☰
         </button>
@@ -61,6 +74,7 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
       </div>
 
       <div className="header-right">
+        
         <div className="header-actions">
           <button className="action-btn theme-toggle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,6 +89,7 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
               <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
             </svg>
           </button>
+
           <div className="notification-wrapper" ref={notifRef} style={{ position: 'relative' }}>
             <button className="action-btn notification-btn" onClick={handleNotificationClick}>
               {notifications.length > 0 && <span className="dot"></span>}
@@ -121,6 +136,46 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
               </div>
             )}
           </div>
+            {/* CHUÔNG CẢNH BÁO CHÁY THEO CẢM BIẾN */}
+           <div className="fire-alert" ref={fireRef} style={{ position: 'relative' }}>
+            <button 
+              className={`action-btn notification-btn ${fireAlert ? 'blinking-fire' : ''}`} 
+              onClick={() => setShowFirePopup(!showFirePopup)}
+              style={fireAlert ? { animation: 'pulse-red 1.5s infinite', border: '1px solid red' } : { border: '1px solid #ef4444' }}
+              title="Cảnh báo cháy"
+            >
+              {fireAlert && <span className="dot" style={{ backgroundColor: '#ff0000', boxShadow: '0 0 8px red' }}></span>}
+              {/* Flame icon (Icon ngọn lửa) viền đỏ */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </button>
+            {showFirePopup && (
+              <div className="notification-dropdown fire-dropdown" style={{ border: '2px solid red', backgroundColor: '#fff5f5', right: '-80px', width: '300px' }}>
+                <div className="notification-header" style={{ color: 'red', borderBottomColor: '#ffcccc' }}>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>⚠️ CẢNH BÁO CHÁY!</h3>
+                  <button className="clear-notif-btn" onClick={() => setShowFirePopup(false)} style={{ color: '#d32f2f' }}>Đóng</button>
+                </div>
+                <div className="notification-list" style={{ padding: '20px', color: '#d32f2f', textAlign: 'center' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="red" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '15px' }}>
+                    <path d="M12 2c0 0-4.5 4.5-4.5 8.5C7.5 14.5 12 22 12 22s4.5-7.5 4.5-11.5C16.5 6.5 12 2 12 2z"/>
+                  </svg>
+                  {fireAlert ? (
+                    <>
+                      <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>Hệ thống phát hiện tín hiệu cháy!</p>
+                      <p style={{ fontSize: '13px', color: '#7f1d1d' }}>Vui lòng sơ tán khỏi tòa nhà và gọi 114 ngay lập tức.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px', color: '#10b981' }}>Hệ thống an toàn</p>
+                      <p style={{ fontSize: '13px', color: '#666' }}>Không phát hiện tín hiệu cháy.</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <button className="action-btn message-btn">
              <span className="dot"></span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

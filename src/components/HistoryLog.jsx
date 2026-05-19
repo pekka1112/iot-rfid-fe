@@ -11,7 +11,7 @@ export default function HistoryLog({ data }) {
   return (
     <div className="history-log-modern">
       <div className="history-log-header">
-        <h2 className="history-log-heading">Nhật ký chi tiết</h2>
+        <h2 className="history-log-heading">Nhật ký chi tiết ra vào nhà xe trong ngày : {data[0]?.dateFormatted || data[0]?.date}</h2>
         <p className="history-log-meta">{data.length} sự kiện</p>
       </div>
       <div className="history-table-wrap">
@@ -19,7 +19,6 @@ export default function HistoryLog({ data }) {
           <thead>
             <tr>
               <th>Cư dân</th>
-              <th>Phòng</th>
               <th>Biển số xe</th>
               <th>Hành động</th>
               <th>Xác thực</th>
@@ -38,7 +37,6 @@ export default function HistoryLog({ data }) {
                     </span>
                     <span className="history-name-text">{item.name}</span>
                   </td>
-                  <td>{item.room || '—'}</td>
                   <td>
                     <span className="history-door-pill" style={{ fontWeight: 600 }}>{item.vehiclePlate || '—'}</span>
                   </td>
@@ -70,7 +68,7 @@ export default function HistoryLog({ data }) {
             ) : (
               <tr>
                 <td colSpan={6} className="history-no-data">
-                  Không có dữ liệu phù hợp
+                  Không có dữ liệu phù hợp - Hôm nay chưa có sự kiện ra vào nào hoặc dữ liệu chưa được cập nhật.
                 </td>
               </tr>
             )}

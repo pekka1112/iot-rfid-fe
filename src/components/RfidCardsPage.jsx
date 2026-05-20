@@ -10,8 +10,10 @@ export default function RfidCardsPage() {
     const fetchRfidCards = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/rfid-cards');
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('Data from API:', data);
           // Transform if needed
           setRfidData(data);
         } else {
@@ -38,8 +40,8 @@ export default function RfidCardsPage() {
   const filteredData = rfidData.filter((item) => {
     const q = searchTerm.toLowerCase();
     return (
-      (item.cardId && item.cardId.toLowerCase().includes(q)) ||
-      (item.licensePlate && item.licensePlate.toLowerCase().includes(q))
+      (item.cardUid && item.cardUid.toLowerCase().includes(q)) ||
+      (item.plateNumber && item.plateNumber.toLowerCase().includes(q))
     );
   });
 
@@ -108,14 +110,14 @@ export default function RfidCardsPage() {
                 </tr>
               ) : (
                 filteredData.map((row, index) => (
-                  <tr key={row.id || index}>
+                  <tr key={row.rfidId || index}>
                     <td>
-                      <span className="detail-mono" style={{ fontWeight: 600, color: '#334155' }}>{row.cardId}</span>
+                      <span className="detail-mono" style={{ fontWeight: 600, color: '#334155' }}>{row.cardUid}</span>
                     </td>
                     <td>
-                      {row.licensePlate ? <span className="plate-badge" style={{ display: 'inline-block', padding: '4px 10px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 700, fontSize: '13px' }}>{row.licensePlate}</span> : '—'}
+                      {row.plateNumber ? <span className="plate-badge" style={{ display: 'inline-block', padding: '4px 10px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 700, fontSize: '13px' }}>{row.plateNumber}</span> : '—'}
                     </td>
-                    <td style={{ fontWeight: 500, color: '#475569', textAlign: 'center' }}>{row.time || '—'}</td>
+                    <td style={{ fontWeight: 500, color: '#475569', textAlign: 'center' }}>{row.createdAt || '—'}</td>
                     <td style={{ textAlign: 'center' }}>
                       <span className={`status-badge ${row.direction === 'Vào' ? 'status-in' : row.direction === 'Ra' ? 'status-out' : ''}`} style={{ 
                         display: 'inline-block', 

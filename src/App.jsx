@@ -25,12 +25,64 @@ function AppContent() {
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
   const [fireAlert, setFireAlert] = useState(false);
+  
 
-  const [stats] = useState({
-    totalResidents: 150,
-    totalGuests: 8,
-    residentCount: 142,
-  });
+  const [residents, setResidents] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [cards, setCards] = useState([]);
+
+  const fetchResidents = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/residents');
+      if (response.data) {
+        setResidents(response.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách cư dân:', error);
+    }
+  };
+
+  const fetchLogs = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/access-logs');
+      if (response.data) {
+        const formattedLogs = response.data.map((log) => {
+          const dateObj = new Date(log.createdAt);
+          const timeFormatted = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const dateFormatted = dateObj.toLocaleDateString('vi-VN');
+          return {
+            id: log.logId,
+            time: `${timeFormatted} ${dateFormatted}`,
+            action: log.direction === 'IN' ? 'Xe vào' : 'Xe ra',
+            detail: `${log.residentName || 'Khách'} - ${log.vehiclePlate || log.detectedPlate || 'Không rõ biển số'}`,
+            vehiclePlate: log.vehiclePlate || log.detectedPlate,
+            direction: log.direction,
+            residentName: log.residentName
+          };
+        });
+        setLogs(formattedLogs);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy nhật ký hệ thống:', error);
+    }
+  };
+
+  const fetchCards = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/rfid-cards');
+      if (response.data) {
+        setCards(response.data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách thẻ RFID:', error);
+    }
+  };
+
+  const totalResidents = residents.length;
+  const guestLogs = logs.filter(log => !log.residentName || log.residentName === 'Khách');
+  const totalGuests = cards.length + guestLogs.length;
+  const totalIn = logs.filter(log => log.direction === 'IN' || log.action === 'Xe vào').length;
+  const totalOut = logs.filter(log => log.direction === 'OUT' || log.direction === 'Ra' || log.action === 'Xe ra').length;
 
   const [cameras, setCameras] = useState([
     { id: 1, title: 'Camera Vào', isActive: true, doorOpen: false, currentUser: null },
@@ -43,13 +95,26 @@ function AppContent() {
       // Chú ý: bạn có thể thay đổi đường dẫn '/api/rfid/scanned' theo API thực tế
       const response = await axios.get('http://localhost:8080/api/rfid/scanned');
       if (response.data) {
+        // Log dữ liệu thô để debug vì backend có thể không trả `name`
+        console.debug('fetchScannedData response:', response.data);
+
+        const normalizeUser = (u) => {
+          if (!u) return null;
+          return {
+            name: u.name || u.fullName || u.ownerName || u.cardUid || u.plateNumber || null,
+            type: u.type || u.direction || '',
+            room: u.room || '',
+            status: u.status || '',
+            detectedAt: u.detectedAt || u.createdAt || ''
+          };
+        };
+
         setCameras((prev) => prev.map((cam) => {
-          // Giả sử API trả về { cameraIn: { name, type, room, status, detectedAt }, cameraOut: {...} }
           if (cam.id === 1 && response.data.cameraIn) {
-            return { ...cam, currentUser: response.data.cameraIn };
+            return { ...cam, currentUser: normalizeUser(response.data.cameraIn) };
           }
           if (cam.id === 2 && response.data.cameraOut) {
-            return { ...cam, currentUser: response.data.cameraOut };
+            return { ...cam, currentUser: normalizeUser(response.data.cameraOut) };
           }
           return cam;
         }));
@@ -75,10 +140,19 @@ function AppContent() {
   };
 
   useEffect(() => {
+    fetchScannedData();
+    fetchFireStatus();
+    fetchResidents();
+    fetchLogs();
+    fetchCards();
+
     // Tự động cập nhật mỗi 5 giây
     const interval = setInterval(() => {
       fetchScannedData();
       fetchFireStatus();
+      fetchResidents();
+      fetchLogs();
+      fetchCards();
     }, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -108,31 +182,53 @@ function AppContent() {
     }, 3000);
   };
 
-  const handleDoorOpen = async (id) => {
-    try {
-      const response = await axios.post('http://localhost:8000/relay/OPEN');
-      if (response.data?.status === 'success' && response.data.relay) {
-        setDoorByRelay(id, response.data.relay);
-      } else {
-        console.error('API mở cửa trả về dữ liệu không hợp lệ:', response.data);
-      }
-    } catch (error) {
-      console.error('Lỗi khi gọi API mở cửa:', error);
-    }
-  };
+  // const handleDoorOpen = async (id) => {
+  //   try {
+  //     const response = await axios.post('http://localhost:8000/relay/OPEN');
+  //     console.log('API mở cửa response:', response.data);
+  //     if (response.data?.status === 'success' && response.data.relay) {
+  //       setDoorByRelay(id, response.data.relay);
+  //     } else {
+  //       console.error('API mở cửa trả về dữ liệu không hợp lệ:', response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Lỗi khi gọi API mở cửa:', error);
+  //   }
+  // };
 
-  const handleDoorClose = async (id) => {
-    try {
-      const response = await axios.post('http://localhost:8000/relay/CLOSE');
-      if (response.data?.status === 'success' && response.data.relay) {
-        setDoorByRelay(id, response.data.relay);
-      } else {
-        console.error('API đóng cửa trả về dữ liệu không hợp lệ:', response.data);
-      }
-    } catch (error) {
-      console.error('Lỗi khi gọi API đóng cửa:', error);
-    }
-  };
+  // const handleDoorClose = async (id) => {
+  //   try {
+  //     const response = await axios.post('http://localhost:8000/relay/CLOSE');
+  //     if (response.data?.status === 'success' && response.data.relay) {
+  //       setDoorByRelay(id, response.data.relay);
+  //     } else {
+  //       console.error('API đóng cửa trả về dữ liệu không hợp lệ:', response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Lỗi khi gọi API đóng cửa:', error);
+  //   }
+  // };
+
+const handleDoorOpen = async (id) => {
+  try {
+    const response = await axios.post('http://localhost:8000/relay/OPEN');
+    console.log('Mở cửa response:', response.data); // xem log này trả gì
+    setDoorByRelay(id, 'OPEN'); // cập nhật UI luôn, không cần check
+  } catch (error) {
+    console.error('Lỗi khi gọi API mở cửa:', error);
+  }
+};
+
+const handleDoorClose = async (id) => {
+  try {
+    const response = await axios.post('http://localhost:8000/relay/CLOSE');
+    console.log('Đóng cửa response:', response.data);
+    setDoorByRelay(id, 'CLOSE');
+  } catch (error) {
+    console.error('Lỗi khi gọi API đóng cửa:', error);
+  }
+};
+
 
   if (!hydrated) {
     return (
@@ -204,19 +300,19 @@ function AppContent() {
                 </div>
                 <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Số người dùng</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalResidents}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalResidents}</div>
                 </div>
                 <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng khách</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalGuests}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalGuests}</div>
                 </div>
                 <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi vào</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.totalGuests}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalIn}</div>
                 </div>
                 <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi ra</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{stats.residentCount}</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalOut}</div>
                 </div>
                   
                 </div>
@@ -236,7 +332,7 @@ function AppContent() {
               </div>
 
               <div className="dashboard-panels-container">
-                <DashboardPanels />
+                <DashboardPanels logs={logs} cards={cards} />
               </div>
             </div>
           </div>

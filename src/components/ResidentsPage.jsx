@@ -12,6 +12,43 @@ export default function ResidentsPage() {
   const [selectedResident, setSelectedResident] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  const [showVehiclePopup, setShowVehiclePopup] = useState(false);
+  const [selectedResidentVehicle, setSelectedResidentVehicle] = useState(null);
+  const [licensePlate, setLicensePlate] = useState('');
+  const handleAddVehicle = (resident) => {
+  setSelectedResidentVehicle(resident);
+  setLicensePlate('');
+  setShowVehiclePopup(true);
+};
+const handleSaveVehicle = async () => {
+  try {
+    const response = await fetch('http://localhost:8080/api/vehicles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        licensePlate: licensePlate,
+        residentId: selectedResidentVehicle.id,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Lỗi thêm biển số');
+    }
+
+    alert('Thêm biển số thành công');
+
+    setShowVehiclePopup(false);
+
+    // reload danh sách
+    fetchResidents();
+
+  } catch (error) {
+    console.error(error);
+    alert('Có lỗi xảy ra');
+  }
+};
   const fetchResidents = async () => {
     try {
       const [resResidents, resDetails] = await Promise.all([
@@ -226,13 +263,45 @@ export default function ResidentsPage() {
 
       <div className="residents-table-card">
         <ResidentList
-          residents={filteredResidents}
-          selectedResident={selectedResident}
-          onSelectResident={setSelectedResident}
-          onViewDetailResident={handleViewResidentDetail}
-          onEditResident={handleEditResident}
-          onDeleteResident={handleDeleteResident}
-        />
+  residents={residents}
+  selectedResident={selectedResident}
+  onSelectResident={setSelectedResident}
+  onViewDetailResident={handleViewResidentDetail}
+  onEditResident={handleEditResident}
+  onDeleteResident={handleDeleteResident}
+  onAddVehicle={handleAddVehicle}
+/>
+        {showVehiclePopup && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+
+      <h3>Thêm biển số xe</h3>
+
+      <p>
+        Người dùng:
+        <b> {selectedResidentVehicle?.name}</b>
+      </p>
+
+      <input
+        type="text"
+        placeholder="Nhập biển số xe"
+        value={licensePlate}
+        onChange={(e) => setLicensePlate(e.target.value)}
+      />
+
+      <div className="popup-actions">
+        <button onClick={() => setShowVehiclePopup(false)}>
+          Hủy
+        </button>
+
+        <button onClick={handleSaveVehicle}>
+          Lưu
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
       </div>
 
       {showDetailModal && selectedResident && (

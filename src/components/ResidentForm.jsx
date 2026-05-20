@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ResidentForm.css';
 
 export default function ResidentForm({ resident, onSave, onClose }) {
+  
+
   const [formData, setFormData] = useState({
     residentId: '',
     fullName: '',

@@ -14,9 +14,21 @@ export default function ResidentsPage() {
 
   const fetchResidents = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/residents');
-      const data = await response.json();
-      const formattedData = data.map(r => {
+      const [resResidents, resDetails] = await Promise.all([
+        fetch('http://localhost:8080/api/residents').then(r => r.ok ? r.json() : []),
+        fetch('http://localhost:8080/api/resident-details').then(r => r.ok ? r.json() : [])
+      ]);
+
+      const detailsMap = new Map();
+      if (Array.isArray(resDetails)) {
+        resDetails.forEach(detail => {
+          if (detail && detail.residentId) {
+            detailsMap.set(detail.residentId, detail);
+          }
+        });
+      }
+
+      const formattedData = resResidents.map(r => {
         let createdAtStr = '—';
         let rawDateStr = '';
         if (r.createdAt) {
@@ -26,18 +38,26 @@ export default function ResidentsPage() {
             rawDateStr = dateObj.toISOString().split('T')[0];
           }
         }
+
+        const details = detailsMap.get(r.residentId) || {};
+        const vehicles = details.vehicles || [];
+        const licensePlateStr = vehicles.length > 0 
+          ? vehicles.map(v => v.licensePlate).filter(Boolean).join(', ') 
+          : '—';
+
         return {
           id: r.residentId,
           userId: `ND-${String(r.residentId || '').padStart(3, '0')}`,
           name: r.fullName,
           room: '—',
           phone: r.phone,
-          licensePlate: '—',
+          licensePlate: licensePlateStr,
           email: '—',
           createdAt: createdAtStr,
           rawDate: rawDateStr,
           status: r.status,
-          birthYear: r.birthYear
+          birthYear: r.birthYear,
+          vehicles: vehicles
         };
       });
       setResidents(formattedData);
@@ -94,18 +114,43 @@ export default function ResidentsPage() {
         fullName: residentData.fullName,
         phone: residentData.phone,
         birthYear: residentData.birthYear ? parseInt(residentData.birthYear, 10) : null,
-        status: residentData.status || 'active'
+        status: residentData.status || 'active',
+        vehicles: residentData.licensePlate ? [
+          {
+            licensePlate: residentData.licensePlate,
+            vehicleType: 'motorbike'
+          }
+        ] : []
       };
 
       let response;
       if (editingResident) {
-        response = await fetch(`http://localhost:8080/api/residents/${editingResident.id}`, {
+        // Try PUT to resident-details first
+        response = await fetch(`http://localhost:8080/api/resident-details/${editingResident.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
+        // Graceful fallback to basic /api/residents if PUT to resident-details fails
+        if (!response.ok) {
+          console.warn('PUT /api/resident-details failed, falling back to /api/residents...');
+          const basicPayload = {
+            residentId: payload.residentId,
+            fullName: payload.fullName,
+            phone: payload.phone,
+            birthYear: payload.birthYear,
+            status: payload.status
+          };
+          response = await fetch(`http://localhost:8080/api/residents/${editingResident.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(basicPayload),
+          });
+        }
       } else {
-        response = await fetch('http://localhost:8080/api/residents', {
+        // POST to resident-details as requested
+        response = await fetch('http://localhost:8080/api/resident-details', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -223,7 +268,7 @@ export default function ResidentsPage() {
 
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Biển số xe</span>
-                    {selectedResident.licensePlate ? (
+                    {selectedResident.licensePlate && selectedResident.licensePlate !== '—' ? (
                       <span className="plate-badge" style={{ backgroundColor: '#fff', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: '600', color: '#0f172a' }}>
                         {selectedResident.licensePlate}
                       </span>

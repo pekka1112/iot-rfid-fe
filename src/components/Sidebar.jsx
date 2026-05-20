@@ -88,19 +88,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
             </NavIcon>
             {!isCollapsed && <span className="menu-label">Camera</span>}
           </button>
-          <button
-            type="button"
-            className={`menu-item ${activeMenu === 'history' ? 'active' : ''}`}
-            onClick={() => handleMenuChange('history')}
-          >
-            <NavIcon>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-              </svg>
-            </NavIcon>
-            {!isCollapsed && <span className="menu-label">Lịch sử</span>}
-          </button>
+          
           <button
             type="button"
             className={`menu-item ${activeMenu === 'rfid' ? 'active' : ''}`}
@@ -114,6 +102,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
             </NavIcon>
             {!isCollapsed && <span className="menu-label">Thẻ RFID</span>}
           </button>
+
           <button
             type="button"
             className={`menu-item ${activeMenu === 'settings' ? 'active' : ''}`}
@@ -126,6 +115,20 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
               </svg>
             </NavIcon>
             {!isCollapsed && <span className="menu-label">Cài đặt</span>}
+          </button>
+
+          <button
+            type="button"
+            className={`menu-item ${activeMenu === 'history' ? 'active' : ''}`}
+            onClick={() => handleMenuChange('history')}
+          >
+            <NavIcon>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </NavIcon>
+            {!isCollapsed && <span className="menu-label">Lịch sử</span>}
           </button>
         </nav>
 

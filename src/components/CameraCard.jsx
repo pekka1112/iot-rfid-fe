@@ -33,11 +33,8 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
   }, [isActive]);
 
   // URL hiển thị ảnh từ camera. 
-  // Đối với một số dòng camera phổ biến (Dahua, Kbvision...), URL snapshot có dạng:
-  // http://admin:pass@ip/cgi-bin/snapshot.cgi
-  // Hoặc luồng MJPEG: http://admin:pass@ip/cgi-bin/mjpg/video.cgi?subtype=1
-  // *Lưu ý: Nếu trình duyệt chặn format http://user:pass@ip, bạn có thể cần cấu hình backend proxy.
-  const cameraImageUrl = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/cgi-bin/snapshot.cgi?timestamp=${timestamp}`;
+  // Sử dụng video feed từ máy chủ Python ở localhost:8000 làm nguồn chính
+  const cameraImageUrl = "http://localhost:8000/video_feed";
 
   return (
     <div className="camera-card">
@@ -56,13 +53,23 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
               alt="Camera Feed"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               onError={(e) => {
-                // Thử dự phòng với Hikvision nếu Dahua lỗi
-                if (!e.target.dataset.triedHikvision) {
-                  e.target.dataset.triedHikvision = true;
-                  e.target.src = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/ISAPI/Streaming/channels/101/picture?timestamp=${timestamp}`;
+                if (!e.target.dataset.triedLocalFeed) {
+                  // Thử nghiệm 1: Trực tiếp lấy snapshot từ Camera Dahua (nếu đã đăng nhập ở tab khác)
+                  e.target.dataset.triedLocalFeed = true;
+                  e.target.src = `http://${IP_CAMERA}/cgi-bin/snapshot.cgi?timestamp=${timestamp}`;
+                } else if (!e.target.dataset.triedQueryCredentials) {
+                  // Thử nghiệm 2: Gửi thông tin đăng nhập qua Query Params (không bị Chrome chặn)
+                  e.target.dataset.triedQueryCredentials = true;
+                  e.target.src = `http://${IP_CAMERA}/cgi-bin/snapshot.cgi?count=1&usr=${CAM_USER}&pwd=${CAM_PASS}&ts=${timestamp}`;
                 } else if (!e.target.dataset.triedGeneric) {
+                  // Thử nghiệm 3: endpoint snapshot generic Dahua
                   e.target.dataset.triedGeneric = true;
                   e.target.src = `http://${IP_CAMERA}/snapshot.cgi?user=${CAM_USER}&pwd=${CAM_PASS}&t=${timestamp}`;
+                } else if (!e.target.dataset.triedBackendProxy) {
+                  // Thử nghiệm 4: Proxy qua Spring Boot ở cổng 8080
+                  e.target.dataset.triedBackendProxy = true;
+                  const activeCamId = title.toLowerCase().includes('vào') ? 1 : 2;
+                  e.target.src = `http://localhost:8080/api/camera/snapshot?camId=${activeCamId}&t=${timestamp}`;
                 }
               }}
             />

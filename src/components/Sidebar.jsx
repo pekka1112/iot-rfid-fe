@@ -36,7 +36,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
           <button type="button" className="logo-btn" onClick={handleLogoClick} title="Trang chủ">
             <img src="icon.png" alt="" className="logo-image" />
           </button>
-          {!isCollapsed && <span className="brand-title">RFID System</span>}
+          {!isCollapsed && <span className="brand-title">VPark</span>}
           <button type="button" className="collapse-toggle-btn" onClick={onToggleCollapse} title={isCollapsed ? "Mở rộng" : "Thu gọn"}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isCollapsed ? "rotate-180" : ""}>
               <path d="M15 18l-6-6 6-6" />
@@ -58,7 +58,7 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
                 <rect x="14" y="14" width="7" height="7" rx="1.5" />
               </svg>
             </NavIcon>
-            {!isCollapsed && <span className="menu-label">Dashboard</span>}
+            {!isCollapsed && <span className="menu-label">Trang chủ</span>}
           </button>
           <button
             type="button"

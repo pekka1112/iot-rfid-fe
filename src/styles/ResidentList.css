@@ -227,12 +227,60 @@
   margin-left: 6px;
   transition: all 0.2s;
 }
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
 
+.popup-box {
+  width: 350px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.popup-box h3 {
+  margin-bottom: 10px;
+}
+
+.popup-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.popup-actions button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 .action-icon-btn:hover {
   background: #f1f5f9;
   color: #0f172a;
 }
+.action-icon-btn.add-vehicle {
+  background: #e0f2fe;
+  color: #0284c7;
+}
 
+.action-icon-btn.add-vehicle:hover {
+  background: #bae6fd;
+}
 .action-icon-btn.edit:hover {
   background: #f0fdf4;
   color: #16a34a;

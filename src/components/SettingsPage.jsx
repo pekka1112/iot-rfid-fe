@@ -242,8 +242,8 @@ export default function SettingsPage() {
 
         <section className="settings-panel-card settings-panel-sync">
           <div className="settings-panel-head">
-            <h2 className="settings-panel-title">Đồng bộ RFID</h2>
-            <p className="settings-panel-desc">Đẩy dữ liệu từ đầu đọc RFID về máy chủ</p>
+            <h2 className="settings-panel-title">Đồng bộ dữ liệu</h2>
+            <p className="settings-panel-desc">Đẩy dữ liệu từ website lên máy</p>
           </div>
 
           <div className="settings-panel-body">
@@ -254,7 +254,7 @@ export default function SettingsPage() {
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
                 </svg>
               </span>
-              Đẩy dữ liệu về máy RFID
+              Đẩy dữ liệu về máy
             </button>
 
             <button type="button" className="btn-settings-sync" onClick={handleViewBackup} style={{ background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }}>

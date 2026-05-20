@@ -65,11 +65,54 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
           ☰
         </button>
         <div className="search-bar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {/* <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input type="text" placeholder="Gõ để tìm kiếm ..." />
+          <input type="text" placeholder="Gõ để tìm kiếm ..." /> */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+  {/* Icon box */}
+  <div style={{ position: 'relative', width: '36px', height: '36px', flexShrink: 0 }}>
+    {/* <div style={{
+      width: '36px', height: '36px', borderRadius: '8px',
+      background: 'linear-gradient(135deg, #534AB7, #1D9E75)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center'
+    }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="15" height="13" rx="2"/>
+        <path d="M16 8h4l3 3v5h-7V8z"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/>
+        <circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+    </div> */}
+    <div style={{
+      position: 'absolute', top: '-3px', right: '-3px',
+      width: '10px', height: '10px', borderRadius: '50%',
+      background: '#1D9E75', border: '2px solid white'
+    }}/>
+  </div>
+
+  {/* Text logo + dòng chữ */}
+  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+    <span style={{
+      fontSize: '18px', fontWeight: 500, letterSpacing: '0.5px',
+      background: 'linear-gradient(90deg, #534AB7, #1D9E75)',
+      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
+    }}>
+      SmartPark - AIOT
+    </span>
+    <span style={{
+      fontSize: '11px', fontWeight: 500,
+      letterSpacing: '4px', textTransform: 'uppercase',
+      background: 'linear-gradient(90deg, #7F77DD, #1D9E75)',
+      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
+    }}>
+      Hệ thống gửi xe thông minh
+    </span>
+  </div>
+</div>
         </div>
       </div>
 

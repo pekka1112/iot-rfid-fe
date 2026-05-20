@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 export default function CameraPage({ cameras = [], onOpen, onClose }) {
   const [activeCamId, setActiveCamId] = useState(1);
   const [timestamp, setTimestamp] = useState(Date.now());
+  const [reloadToken, setReloadToken] = useState(Date.now());
 
   const currentCam = cameras.find((c) => c.id === activeCamId) || {
     id: activeCamId,
@@ -24,8 +25,25 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
   const CAM_USER = "admin";
   const CAM_PASS = "Abc123456";
 
-  // Sử dụng video feed từ máy chủ Python ở localhost:8000 làm nguồn chính
-  const cameraImageUrl = "http://localhost:8000/video_feed";
+  // Sử dụng video feed từ máy chủ Python ở localhost:8000 làm nguồn chính (thêm reload query parameter để ép trình duyệt tải lại)
+  const cameraImageUrl = `http://localhost:8000/video_feed?reload=${reloadToken}`;
+
+  const handleReload = () => {
+    setReloadToken(Date.now());
+    // Khôi phục lại hiển thị của thẻ ảnh và reset các flag lỗi
+    const imgEl = document.getElementById('camera-main-stream');
+    if (imgEl) {
+      imgEl.style.display = 'block';
+      delete imgEl.dataset.triedLocalFeed;
+      delete imgEl.dataset.triedQueryCredentials;
+      delete imgEl.dataset.triedGeneric;
+      delete imgEl.dataset.triedBackendProxy;
+    }
+    const errorBox = document.getElementById('camera-main-error');
+    if (errorBox) {
+      errorBox.style.display = 'none';
+    }
+  };
 
   const handleOpen = () => {
     onOpen?.(currentCam.id);
@@ -193,7 +211,8 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
             backdropFilter: 'blur(8px)',
             padding: '3px',
             border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            alignItems: 'center'
           }}>
             <button
               type="button"
@@ -209,6 +228,26 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
             >
               CỔNG RA
             </button>
+            <button
+              type="button"
+              className="hud-btn inactive"
+              onClick={handleReload}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
+                marginLeft: '4px',
+                paddingLeft: '8px',
+                borderRadius: '0 4px 4px 0'
+              }}
+              title="Tải lại luồng camera"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ transition: 'transform 0.3s' }}>
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
+              LÀM MỚI
+            </button>
           </div>
         </div>
 
@@ -222,6 +261,7 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
         }}>
           {currentCam.isActive ? (
             <img
+              id="camera-main-stream"
               src={cameraImageUrl}
               alt="Live Surveillance Feed"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -255,7 +295,7 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
           )}
 
           {/* Bảng báo lỗi */}
-          <div className="camera-error-hud" style={{
+          <div id="camera-main-error" className="camera-error-hud" style={{
             position: 'absolute',
             top: 0,
             left: 0,

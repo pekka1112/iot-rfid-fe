@@ -14,6 +14,7 @@ import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import DashboardPanels from './components/DashboardPanels';
 import AIChat from './components/AIChat';
+import CameraPage from './components/CameraPage';
 import './App.css';
 
 function AppContent() {
@@ -346,7 +347,11 @@ const handleDoorClose = async (id) => {
 
         {activeMenu === 'camera' && (
           <div className="page-content">
-            <p>Camera page - Coming soon</p>
+            <CameraPage
+              cameras={cameras}
+              onOpen={handleDoorOpen}
+              onClose={handleDoorClose}
+            />
           </div>
         )}
 

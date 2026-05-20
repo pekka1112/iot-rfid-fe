@@ -24,7 +24,8 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
   const CAM_USER = "admin";
   const CAM_PASS = "Abc123456";
 
-  const cameraImageUrl = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/cgi-bin/snapshot.cgi?timestamp=${timestamp}`;
+  // Sử dụng video feed từ máy chủ Python ở localhost:8000 làm nguồn chính
+  const cameraImageUrl = "http://localhost:8000/video_feed";
 
   const handleOpen = () => {
     onOpen?.(currentCam.id);
@@ -225,12 +226,22 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
               alt="Live Surveillance Feed"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
               onError={(e) => {
-                if (!e.target.dataset.triedHikvision) {
-                  e.target.dataset.triedHikvision = true;
-                  e.target.src = `http://${CAM_USER}:${CAM_PASS}@${IP_CAMERA}/ISAPI/Streaming/channels/101/picture?timestamp=${timestamp}`;
+                if (!e.target.dataset.triedLocalFeed) {
+                  // Thử nghiệm 1: Trực tiếp lấy snapshot từ Camera Dahua (nếu đã đăng nhập ở tab khác)
+                  e.target.dataset.triedLocalFeed = true;
+                  e.target.src = `http://${IP_CAMERA}/cgi-bin/snapshot.cgi?timestamp=${timestamp}`;
+                } else if (!e.target.dataset.triedQueryCredentials) {
+                  // Thử nghiệm 2: Gửi thông tin qua Query Params thay vì ở Hostname authority (Không bị Chrome chặn)
+                  e.target.dataset.triedQueryCredentials = true;
+                  e.target.src = `http://${IP_CAMERA}/cgi-bin/snapshot.cgi?count=1&usr=${CAM_USER}&pwd=${CAM_PASS}&ts=${timestamp}`;
                 } else if (!e.target.dataset.triedGeneric) {
+                  // Thử nghiệm 3: endpoint snapshot generic Dahua
                   e.target.dataset.triedGeneric = true;
                   e.target.src = `http://${IP_CAMERA}/snapshot.cgi?user=${CAM_USER}&pwd=${CAM_PASS}&t=${timestamp}`;
+                } else if (!e.target.dataset.triedBackendProxy) {
+                  // Thử nghiệm 4: Proxy qua Backend Spring Boot ở cổng 8080
+                  e.target.dataset.triedBackendProxy = true;
+                  e.target.src = `http://localhost:8080/api/camera/snapshot?camId=${activeCamId}&t=${timestamp}`;
                 } else {
                   e.target.style.display = 'none';
                   const parent = e.target.parentElement;

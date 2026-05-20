@@ -8,6 +8,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
     phone: '',
     birthYear: '',
     status: 'active',
+    licensePlate: '',
   });
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
         phone: resident.phone || '',
         birthYear: resident.birthYear || '',
         status: resident.status || 'active',
+        licensePlate: (resident.licensePlate && resident.licensePlate !== '—') ? resident.licensePlate : '',
       });
     } else {
       setFormData({
@@ -26,6 +28,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
         phone: '',
         birthYear: '',
         status: 'active',
+        licensePlate: '',
       });
     }
   }, [resident]);
@@ -63,7 +66,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
         <form onSubmit={handleSubmit} className="resident-form-body">
           <div className="form-grid-2col">
             <div className="form-group">
-              <label htmlFor="residentId">ID* (Băt buộc)</label>
+              <label htmlFor="residentId">ID* (Bắt buộc)</label>
               <input
                 type="number"
                 id="residentId"
@@ -79,7 +82,7 @@ export default function ResidentForm({ resident, onSave, onClose }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="fullName">Họ và tên* (Băt buộc)</label>
+              <label htmlFor="fullName">Họ và tên* (Bắt buộc)</label>
               <input
                 type="text"
                 id="fullName"
@@ -129,6 +132,18 @@ export default function ResidentForm({ resident, onSave, onClose }) {
                 <option value="active">Hoạt động</option>
                 <option value="inactive">Tạm khóa</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="licensePlate">Biển số xe</label>
+              <input
+                type="text"
+                id="licensePlate"
+                name="licensePlate"
+                value={formData.licensePlate}
+                onChange={handleChange}
+                placeholder="VD: 48F122345"
+              />
             </div>
           </div>
 

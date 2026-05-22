@@ -94,10 +94,10 @@ body {
 .content-area {
   flex: 1 1 auto;
   min-height: min-content;
-  padding: 20px 30px 28px;
+  /* padding: 20px 30px 28px; */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0px;
 }
 
 .page-content {

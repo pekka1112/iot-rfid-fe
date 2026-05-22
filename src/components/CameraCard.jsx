@@ -108,12 +108,12 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
           <div style={{
             position: 'absolute',
             top: 12,
-            right: 12,
+            right: 54,
             zIndex: 10,
             backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(100, 116, 139, 0.15)',
             color: isActive ? '#10b981' : '#94a3b8',
             border: `1px solid ${isActive ? 'rgba(16, 185, 129, 0.25)' : 'rgba(100, 116, 139, 0.25)'}`,
-            padding: '4px 10px',
+            padding: '4px 8px',
             borderRadius: '6px',
             fontSize: '10px',
             fontWeight: '800',
@@ -121,6 +121,43 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
             backdropFilter: 'blur(4px)'
           }}>
             {isActive ? 'LIVE' : 'OFF'}
+          </div>
+
+          <div
+            title={doorOpen ? 'Cửa mở' : 'Cửa đóng'}
+            style={{
+              position: 'absolute',
+              top: 44,
+              right: 12,
+              zIndex: 10,
+              width: '32px',
+              height: '32px',
+              backgroundColor: doorOpen ? 'rgba(16, 185, 129, 0.16)' : 'rgba(239, 68, 68, 0.12)',
+              color: doorOpen ? '#10b981' : '#f43f5e',
+              border: `1px solid ${doorOpen ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.25)'}`,
+              borderRadius: '50%',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(4px)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.12)'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {doorOpen ? (
+                <>
+                  <path d="M3 21V7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14" />
+                  <path d="M7 21V11h6" />
+                  <path d="M15 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                </>
+              ) : (
+                <>
+                  <path d="M3 7V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2" />
+                  <path d="M7 21V7h10v14" />
+                  <path d="M12 16h2" />
+                </>
+              )}
+            </svg>
           </div>
 
           {/* Nút tải lại nổi ở góc trên bên phải (cạnh nhãn LIVE) */}
@@ -132,7 +169,7 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
               style={{
                 position: 'absolute',
                 top: 12,
-                right: 70,
+                right: 12,
                 zIndex: 10,
                 backgroundColor: 'rgba(15, 23, 42, 0.75)',
                 backdropFilter: 'blur(6px)',

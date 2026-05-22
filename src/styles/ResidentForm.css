@@ -186,3 +186,192 @@
     width: 100%;
   }
 }
+
+/* ====== VEHICLE TABLE SECTION ====== */
+.vehicle-table-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.vehicle-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.vehicle-table-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.vehicle-count-badge {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  min-width: 22px;
+  text-align: center;
+}
+
+.vehicle-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 16px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.vehicle-mini-table-wrap {
+  overflow-x: auto;
+}
+
+.vehicle-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vehicle-mini-table thead th {
+  background: #fff;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.vehicle-mini-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+.vehicle-mini-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.vehicle-mini-table tbody tr:hover {
+  background: #fff;
+}
+
+.vehicle-mini-table tbody tr.vehicle-row-editing {
+  background: #eff6ff;
+}
+
+.vehicle-mini-table td {
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+.vehicle-row-num {
+  color: #94a3b8;
+  font-weight: 600;
+  width: 30px;
+}
+
+.vehicle-plate-badge {
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+.vehicle-edit-input {
+  width: 100%;
+  padding: 5px 10px;
+  border: 1.5px solid #3b82f6;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  color: #0f172a;
+  background: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  transition: border-color 0.2s;
+}
+
+.vehicle-action-btns {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.vehicle-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, transform 0.15s;
+}
+
+.vehicle-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vehicle-btn:not(:disabled):hover {
+  transform: scale(1.08);
+}
+
+/* Nút sửa */
+.vehicle-btn-edit {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.vehicle-btn-edit:not(:disabled):hover {
+  background: #dbeafe;
+}
+
+/* Nút xóa */
+.vehicle-btn-delete {
+  background: #fef2f2;
+  color: #ef4444;
+}
+.vehicle-btn-delete:not(:disabled):hover {
+  background: #fee2e2;
+}
+
+/* Nút lưu (khi đang edit) */
+.vehicle-btn-save {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.vehicle-btn-save:not(:disabled):hover {
+  background: #dcfce7;
+}
+
+/* Nút hủy (khi đang edit) */
+.vehicle-btn-cancel {
+  background: #f8fafc;
+  color: #64748b;
+}
+.vehicle-btn-cancel:not(:disabled):hover {
+  background: #f1f5f9;
+}
+

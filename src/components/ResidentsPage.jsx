@@ -28,22 +28,17 @@ const handleSaveVehicle = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        licensePlate: licensePlate,
+        plateNumber: licensePlate,
         residentId: selectedResidentVehicle.id,
       }),
     });
-
     if (!response.ok) {
       throw new Error('Lỗi thêm biển số');
     }
-
     alert('Thêm biển số thành công');
-
     setShowVehiclePopup(false);
-
     // reload danh sách
     fetchResidents();
-
   } catch (error) {
     console.error(error);
     alert('Có lỗi xảy ra');
@@ -129,12 +124,36 @@ const handleSaveVehicle = async () => {
   const handleDeleteResident = async (id) => {
     if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
       try {
+        // 1. Xóa resident chính
         const response = await fetch(`http://localhost:8080/api/residents/${id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {
           throw new Error('Xóa dữ liệu thất bại từ Server');
         }
+
+        // 2. Đồng thời xóa khỏi rfid_users_backups và máy RFID (không block nếu lỗi)
+        const [backupResult, rfidResult] = await Promise.allSettled([
+          fetch(`http://localhost:8080/api/rfid-users-backups/${id}`, { method: 'DELETE' }),
+          fetch(`http://localhost:8000/delete-user/${id}`, { method: 'DELETE' }),
+        ]);
+
+        if (backupResult.status === 'rejected') {
+          console.warn(`Không thể xóa backup ID=${id}:`, backupResult.reason);
+        } else if (backupResult.value && !backupResult.value.ok) {
+          console.warn(`Xóa rfid-users-backups ID=${id} trả về lỗi:`, backupResult.value.status);
+        } else {
+          console.log(`Đã xóa rfid-users-backups ID=${id} thành công.`);
+        }
+
+        if (rfidResult.status === 'rejected') {
+          console.warn(`Không thể xóa user RFID ID=${id}:`, rfidResult.reason);
+        } else if (rfidResult.value && !rfidResult.value.ok) {
+          console.warn(`Xóa máy RFID ID=${id} trả về lỗi:`, rfidResult.value.status);
+        } else {
+          console.log(`Đã xóa user máy RFID ID=${id} thành công.`);
+        }
+
         await fetchResidents();
         setSelectedResident(null);
       } catch (err) {
@@ -146,58 +165,54 @@ const handleSaveVehicle = async () => {
 
   const handleSaveResident = async (residentData) => {
     try {
-      const payload = {
-        residentId: residentData.residentId ? parseInt(residentData.residentId, 10) : null,
-        fullName: residentData.fullName,
-        phone: residentData.phone,
-        birthYear: residentData.birthYear ? parseInt(residentData.birthYear, 10) : null,
-        status: residentData.status || 'active',
-        vehicles: residentData.licensePlate ? [
-          {
-            licensePlate: residentData.licensePlate,
-            vehicleType: 'motorbike'
-          }
-        ] : []
-      };
-
       let response;
       if (editingResident) {
-        // Try PUT to resident-details first
+        // Khi EDIT: KHÔNG gửi vehicles để tránh backend xóa biển số đã quản lý riêng
+        const editPayload = {
+          residentId: residentData.residentId ? parseInt(residentData.residentId, 10) : null,
+          fullName: residentData.fullName,
+          phone: residentData.phone,
+          birthYear: residentData.birthYear ? parseInt(residentData.birthYear, 10) : null,
+          status: residentData.status || 'active',
+        };
+
         response = await fetch(`http://localhost:8080/api/resident-details/${editingResident.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(editPayload),
         });
 
-        // Graceful fallback to basic /api/residents if PUT to resident-details fails
         if (!response.ok) {
           console.warn('PUT /api/resident-details failed, falling back to /api/residents...');
-          const basicPayload = {
-            residentId: payload.residentId,
-            fullName: payload.fullName,
-            phone: payload.phone,
-            birthYear: payload.birthYear,
-            status: payload.status
-          };
           response = await fetch(`http://localhost:8080/api/residents/${editingResident.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(basicPayload),
+            body: JSON.stringify(editPayload),
           });
         }
       } else {
-        // POST to resident-details as requested
+        // Khi THÊM MỚI: gửi kèm vehicles nếu có
+        const createPayload = {
+          residentId: residentData.residentId ? parseInt(residentData.residentId, 10) : null,
+          fullName: residentData.fullName,
+          phone: residentData.phone,
+          birthYear: residentData.birthYear ? parseInt(residentData.birthYear, 10) : null,
+          status: residentData.status || 'active',
+          vehicles: residentData.licensePlate ? [
+            { licensePlate: residentData.licensePlate, vehicleType: 'motorbike' }
+          ] : []
+        };
         response = await fetch('http://localhost:8080/api/resident-details', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(createPayload),
         });
       }
 
       if (!response.ok) {
         throw new Error('Lưu dữ liệu thất bại từ Server');
       }
-      
+
       await fetchResidents();
       setShowForm(false);
       setEditingResident(null);
@@ -422,7 +437,13 @@ const handleSaveVehicle = async () => {
         <ResidentForm
           resident={editingResident}
           onSave={handleSaveResident}
-          onClose={() => setShowForm(false)}
+          onRefresh={fetchResidents}
+          onClose={() => {
+            setShowForm(false);
+            setEditingResident(null);
+            // Luôn refresh sau khi đóng form để đồng bộ biển số đã sửa/xóa trong form
+            fetchResidents();
+          }}
         />
       )}
     </div>

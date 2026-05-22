@@ -13,6 +13,9 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
     currentUser: null,
   };
 
+  const entryCam = cameras.find((c) => c.id === 1) || { title: 'Camera Vào', doorOpen: false };
+  const exitCam = cameras.find((c) => c.id === 2) || { title: 'Camera Ra', doorOpen: false };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTimestamp(Date.now());
@@ -196,10 +199,47 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
               fontSize: '11px',
               fontWeight: '700',
               fontFamily: 'monospace',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#f8fafc'
             }}>
               {currentCam.title.toUpperCase()}
             </span>
+          </div>
+
+          {/* Small door status chips in top-right */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', pointerEvents: 'none' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(15, 23, 42, 0.78)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(8px)',
+              padding: '4px 6px',
+              borderRadius: '999px',
+              fontSize: '10px',
+              fontWeight: '700',
+              color: '#f8fafc'
+            }}>
+              <span style={{ color: entryCam.doorOpen ? '#10b981' : '#f43f5e' }}>C.VÀO</span>
+              <span style={{ color: entryCam.doorOpen ? '#10b981' : '#f43f5e', fontWeight: '900' }}>{entryCam.doorOpen ? 'MỞ' : 'ĐÓNG'}</span>
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(15, 23, 42, 0.78)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(8px)',
+              padding: '4px 6px',
+              borderRadius: '999px',
+              fontSize: '10px',
+              fontWeight: '700',
+              color: '#f8fafc'
+            }}>
+              <span style={{ color: exitCam.doorOpen ? '#10b981' : '#f43f5e' }}>C.RA</span>
+              <span style={{ color: exitCam.doorOpen ? '#10b981' : '#f43f5e', fontWeight: '900' }}>{exitCam.doorOpen ? 'MỞ' : 'ĐÓNG'}</span>
+            </div>
           </div>
 
           {/* CHUYỂN CAMERA TRỰC TIẾP TRÊN MÀN HÌNH (floating) */}

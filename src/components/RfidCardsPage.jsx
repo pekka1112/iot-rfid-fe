@@ -5,37 +5,126 @@ export default function RfidCardsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [rfidData, setRfidData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState('create'); // 'create' or 'edit'
+  const [editingCard, setEditingCard] = useState(null);
+  const [formData, setFormData] = useState({ cardUid: '', plateNumber: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchRfidCards = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/api/rfid-cards');
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Data from API:', data);
-          // Transform if needed
-          setRfidData(data);
-        } else {
-          setRfidData([
-            { id: 1, cardId: 'RFID-1001', licensePlate: '29A-12345', time: '08:30:15', direction: 'Vào' },
-            { id: 2, cardId: 'RFID-1002', licensePlate: '30E-67890', time: '09:15:22', direction: 'Ra' },
-            { id: 3, cardId: 'RFID-1003', licensePlate: '29C-11223', time: '10:05:40', direction: 'Vào' },
-          ]);
-        }
-      } catch (err) {
-        console.error('Lỗi khi lấy dữ liệu thẻ RFID:', err);
-        setRfidData([
-          { id: 1, cardId: 'RFID-1001', licensePlate: '29A-12345', time: '08:30:15', direction: 'Vào' },
-          { id: 2, cardId: 'RFID-1002', licensePlate: '30E-67890', time: '09:15:22', direction: 'Ra' },
-          { id: 3, cardId: 'RFID-1003', licensePlate: '29C-11223', time: '10:05:40', direction: 'Vào' },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRfidCards();
   }, []);
+
+  const fetchRfidCards = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/rfid-cards');
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data from API:', data);
+        // Use direction from API response, or default to 'Ra' if not provided
+        const dataWithDirection = data.map(card => ({
+          ...card,
+          direction: card.direction || 'Ra'
+        }));
+        setRfidData(dataWithDirection);
+      } else {
+        setRfidData([]);
+      }
+    } catch (err) {
+      console.error('Lỗi khi lấy dữ liệu thẻ RFID:', err);
+      setRfidData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateClick = () => {
+    setModalMode('create');
+    setFormData({ cardUid: '', plateNumber: '' });
+    setEditingCard(null);
+    setShowModal(true);
+  };
+
+  const handleEditClick = (card) => {
+    setModalMode('edit');
+    setEditingCard(card);
+    setFormData({ cardUid: card.cardUid, plateNumber: card.plateNumber });
+    setShowModal(true);
+  };
+
+  const handleDeleteClick = async (card) => {
+    if (!confirm(`Xác nhận xóa thẻ RFID: ${card.cardUid}?`)) return;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/rfid-cards/${card.rfidId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert('Xóa thẻ RFID thành công');
+        setRfidData(rfidData.filter(c => c.rfidId !== card.rfidId));
+      } else {
+        alert('Lỗi khi xóa thẻ RFID');
+      }
+    } catch (err) {
+      console.error('Lỗi khi xóa:', err);
+      alert('Lỗi khi xóa thẻ RFID');
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    if (!formData.cardUid.trim() || !formData.plateNumber.trim()) {
+      alert('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      if (modalMode === 'create') {
+        // Create new RFID card
+        const response = await fetch('http://localhost:8080/api/rfid-cards', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const newCard = await response.json();
+          alert('Tạo thẻ RFID thành công');
+          setRfidData([...rfidData, { ...newCard, direction: newCard.direction || 'Ra' }]);
+          setShowModal(false);
+        } else {
+          alert('Lỗi khi tạo thẻ RFID');
+        }
+      } else if (modalMode === 'edit') {
+        // Update existing RFID card
+        const response = await fetch(`http://localhost:8080/api/rfid-cards/${editingCard.rfidId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          alert('Cập nhật thẻ RFID thành công');
+          setRfidData(rfidData.map(c =>
+            c.rfidId === editingCard.rfidId
+              ? { ...c, cardUid: formData.cardUid, plateNumber: formData.plateNumber }
+              : c
+          ));
+          setShowModal(false);
+        } else {
+          alert('Lỗi khi cập nhật thẻ RFID');
+        }
+      }
+    } catch (err) {
+      console.error('Lỗi khi gửi form:', err);
+      alert('Lỗi khi xử lý yêu cầu');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const filteredData = rfidData.filter((item) => {
     const q = searchTerm.toLowerCase();
@@ -72,6 +161,25 @@ export default function RfidCardsPage() {
                 className="history-search-input"
               />
             </div>
+            <button 
+              type="button" 
+              className="btn-export-primary" 
+              onClick={handleCreateClick}
+              style={{
+                backgroundColor: '#10b981',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <span className="btn-export-icon" aria-hidden>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </span>
+              Tạo thẻ
+            </button>
             <button type="button" className="btn-export-primary" onClick={() => alert('Đang xuất dữ liệu')}>
               <span className="btn-export-icon" aria-hidden>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -94,17 +202,18 @@ export default function RfidCardsPage() {
                 <th>ID Thẻ</th>
                 <th>Biển số xe</th>
                 <th style={{ textAlign: 'center' }}>Thời gian (Time)</th>
-                <th style={{ textAlign: 'center' }}>Chiều xe</th>
+                <th style={{ textAlign: 'center' }}>Trạng thái</th>
+                <th style={{ textAlign: 'center' }}>Hành động</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>Đang tải dữ liệu...</td>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>Đang tải dữ liệu...</td>
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="empty-state-cell" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                  <td colSpan="5" className="empty-state-cell" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
                     Không có dữ liệu thẻ RFID
                   </td>
                 </tr>
@@ -129,8 +238,72 @@ export default function RfidCardsPage() {
                         color: row.direction === 'Vào' ? '#16a34a' : row.direction === 'Ra' ? '#dc2626' : '#64748b',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                       }}>
-                        {row.direction || '—'}
+                        Đang trong bãi
                       </span>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                        <button
+                          onClick={() => handleEditClick(row)}
+                          title="Sửa"
+                          style={{
+                            padding: '6px 8px',
+                            backgroundColor: 'transparent',
+                            color: '#64748b',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f1f5f9';
+                            e.currentTarget.style.color = '#0f172a';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#64748b';
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(row)}
+                          title="Xóa"
+                          style={{
+                            padding: '6px 8px',
+                            backgroundColor: 'transparent',
+                            color: '#64748b',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#fee2e2';
+                            e.currentTarget.style.color = '#dc2626';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '#64748b';
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -139,6 +312,136 @@ export default function RfidCardsPage() {
           </table>
         </div>
       </div>
+
+      {/* Modal for Create/Edit */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '12px',
+            padding: '32px',
+            maxWidth: '420px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)'
+          }}>
+            <h2 style={{
+              margin: '0 0 24px',
+              fontSize: '20px',
+              fontWeight: '700',
+              color: '#0f172a'
+            }}>
+              {modalMode === 'create' ? 'Tạo thẻ RFID mới' : 'Sửa thẻ RFID'}
+            </h2>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#334155',
+                marginBottom: '8px'
+              }}>
+                ID Thẻ
+              </label>
+              <input
+                type="text"
+                value={formData.cardUid}
+                onChange={(e) => setFormData({ ...formData, cardUid: e.target.value })}
+                placeholder="Nhập ID thẻ..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box',
+                  fontFamily: 'monospace'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#334155',
+                marginBottom: '8px'
+              }}>
+                Biển số xe
+              </label>
+              <input
+                type="text"
+                value={formData.plateNumber}
+                onChange={(e) => setFormData({ ...formData, plateNumber: e.target.value })}
+                placeholder="Nhập biển số xe..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box',
+                  fontFamily: 'monospace'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#f1f5f9',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e2e8f0'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleFormSubmit}
+                disabled={submitting}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#10b981',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  opacity: submitting ? 0.6 : 1,
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#059669')}
+                onMouseOut={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#10b981')}
+              >
+                {submitting ? 'Đang xử lý...' : (modalMode === 'create' ? 'Tạo' : 'Cập nhật')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

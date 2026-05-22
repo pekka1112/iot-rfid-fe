@@ -50,9 +50,9 @@
 }
 
 .logo-image {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50px;
   object-fit: cover;
   display: block;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);

@@ -35,6 +35,8 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
         <div className="sidebar-brand">
           <button type="button" className="logo-btn" onClick={handleLogoClick} title="Trang chủ">
             <img src="icon.png" alt="" className="logo-image" />
+          
+
           </button>
           {!isCollapsed && <span className="brand-title">VPark</span>}
           <button type="button" className="collapse-toggle-btn" onClick={onToggleCollapse} title={isCollapsed ? "Mở rộng" : "Thu gọn"}>

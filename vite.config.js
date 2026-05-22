@@ -13,6 +13,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    historyApiFallback: true, // ← thêm dòng này
     proxy: {
       // Camera Vào — Channel 1
       '/cam1': {

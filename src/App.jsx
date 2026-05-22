@@ -356,54 +356,6 @@ const handleDoorClose = async (id) => {
         {activeMenu === 'menu' && (
           <div className="page-content">
             <div className="content-area">
-              <div className="dashboard-stats" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div className="stat-card" style={{ flex: '1.5', minWidth: '260px', background: '#fff', padding: '5px 12px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '16px', color: '#64748b', fontWeight: '600' }}></div>
-                  <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }} title={cameras[0].doorOpen ? 'Vào: Mở' : 'Vào: Đóng'}>
-                      <span style={{ fontSize: '16px', fontWeight: '700', color: '#334155' }}>C.Vào: </span>
-                      {cameras[0].doorOpen ? (
-                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 20V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16" /><path d="M2 20h20" /><path d="M10 12v.01" /><path d="M14 4h4a2 2 0 0 1 2 2v14" />
-                        </svg>
-                      ) : (
-                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 20V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16" /><path d="M2 20h20" /><path d="M14 12v.01" />
-                        </svg>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }} title={cameras[1].doorOpen ? 'Ra: Mở' : 'Ra: Đóng'}>
-                      <span style={{ fontSize: '16px', fontWeight: '700', color: '#334155' }}>C.Ra: </span>
-                      {cameras[1].doorOpen ? (
-                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M14 20V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16" /><path d="M2 20h20" /><path d="M10 12v.01" /><path d="M14 4h4a2 2 0 0 1 2 2v14" />
-                        </svg>
-                      ) : (
-                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 20V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16" /><path d="M2 20h20" /><path d="M14 12v.01" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Số người dùng</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalResidents}</div>
-                </div>
-                <div className="stat-card" style={{ flex: '1', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Tổng khách</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalGuests}</div>
-                </div>
-                <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi vào</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalIn}</div>
-                </div>
-                <div className="stat-card" style={{ flex: '0.2', minWidth: '140px', background: '#fff', padding: '5px 10px', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Đi ra</div>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a' }}>{totalOut}</div>
-                </div>
-                  
-                </div>
 
               <div className="cameras-grid">
                 {cameras.map((camera) => (
@@ -419,8 +371,18 @@ const handleDoorClose = async (id) => {
                 ))}
               </div>
 
+              
+
               <div className="dashboard-panels-container">
-                <DashboardPanels logs={logs} cards={cards} />
+                <DashboardPanels 
+                  logs={logs} 
+                  cards={cards} 
+                  cameras={cameras}
+                  totalResidents={totalResidents}
+                  totalGuests={cards.length}
+                  totalIn={totalIn}
+                  totalOut={totalOut}
+                />
               </div>
             </div>
           </div>

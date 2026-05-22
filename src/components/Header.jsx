@@ -70,9 +70,9 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input type="text" placeholder="Gõ để tìm kiếm ..." /> */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0px' }}>
   {/* Icon box */}
-  <div style={{ position: 'relative', width: '36px', height: '36px', flexShrink: 0 }}>
+  <div style={{ position: 'relative', width: '0px', height: '36px', flexShrink: 0 }}>
     {/* <div style={{
       width: '36px', height: '36px', borderRadius: '8px',
       background: 'linear-gradient(135deg, #534AB7, #1D9E75)',
@@ -194,27 +194,148 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
               </svg>
             </button>
             {showFirePopup && (
-              <div className="notification-dropdown fire-dropdown" style={{ border: '2px solid red', backgroundColor: '#fff5f5', right: '-80px', width: '300px' }}>
-                <div className="notification-header" style={{ color: 'red', borderBottomColor: '#ffcccc' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>⚠️ CẢNH BÁO CHÁY!</h3>
-                  <button className="clear-notif-btn" onClick={() => setShowFirePopup(false)} style={{ color: '#d32f2f' }}>Đóng</button>
-                </div>
-                <div className="notification-list" style={{ padding: '20px', color: '#d32f2f', textAlign: 'center' }}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="red" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '15px' }}>
-                    <path d="M12 2c0 0-4.5 4.5-4.5 8.5C7.5 14.5 12 22 12 22s4.5-7.5 4.5-11.5C16.5 6.5 12 2 12 2z"/>
-                  </svg>
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 99999,
+                backdropFilter: 'blur(4px)',
+                animation: 'fadeIn 0.3s ease'
+              }}>
+                <div style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '20px',
+                  padding: '40px 36px',
+                  maxWidth: '450px',
+                  width: '90%',
+                  boxShadow: '0 20px 60px rgba(239, 68, 68, 0.3), 0 0 80px rgba(0, 0, 0, 0.4)',
+                  border: '3px solid #ef4444',
+                  textAlign: 'center',
+                  animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '20px'
+                  }}>
+                    <h2 style={{
+                      margin: 0,
+                      fontSize: '22px',
+                      fontWeight: '900',
+                      color: '#ef4444',
+                      letterSpacing: '0.5px'
+                    }}>⚠️ CẢNH BÁO CHÁY!</h2>
+                    <button
+                      onClick={() => setShowFirePopup(false)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        fontSize: '28px',
+                        cursor: 'pointer',
+                        color: '#ef4444',
+                        padding: '0',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div style={{
+                    margin: '20px 0',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}>
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2c0 0-4.5 4.5-4.5 8.5C7.5 14.5 12 22 12 22s4.5-7.5 4.5-11.5C16.5 6.5 12 2 12 2z"/>
+                    </svg>
+                  </div>
+
                   {fireAlert ? (
                     <>
-                      <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>Hệ thống phát hiện tín hiệu cháy!</p>
-                      <p style={{ fontSize: '13px', color: '#7f1d1d' }}>Vui lòng sơ tán khỏi tòa nhà và gọi 114 ngay lập tức.</p>
+                      <p style={{
+                        fontSize: '18px',
+                        fontWeight: '800',
+                        color: '#ef4444',
+                        margin: '16px 0 12px',
+                        letterSpacing: '0.3px'
+                      }}>Hệ thống phát hiện tín hiệu cháy!</p>
+                      <p style={{
+                        fontSize: '14px',
+                        color: '#7f1d1d',
+                        lineHeight: '1.6',
+                        margin: '0 0 24px'
+                      }}>Vui lòng sơ tán khỏi tòa nhà và gọi <strong>114</strong> ngay lập tức.</p>
                     </>
                   ) : (
                     <>
-                      <p style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '8px', color: '#10b981' }}>Hệ thống an toàn</p>
-                      <p style={{ fontSize: '13px', color: '#666' }}>Không phát hiện tín hiệu cháy.</p>
+                      <p style={{
+                        fontSize: '18px',
+                        fontWeight: '800',
+                        color: '#10b981',
+                        margin: '16px 0 12px'
+                      }}>Hệ thống an toàn</p>
+                      <p style={{
+                        fontSize: '14px',
+                        color: '#666',
+                        margin: '0'
+                      }}>Không phát hiện tín hiệu cháy.</p>
                     </>
                   )}
+
+                  <button
+                    onClick={() => setShowFirePopup(false)}
+                    style={{
+                      marginTop: '24px',
+                      padding: '12px 32px',
+                      backgroundColor: '#ef4444',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      letterSpacing: '0.3px'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+                  >
+                    Đã hiểu
+                  </button>
                 </div>
+
+                <style>{`
+                  @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                  }
+                  @keyframes scaleIn {
+                    from {
+                      opacity: 0;
+                      transform: scale(0.9);
+                    }
+                    to {
+                      opacity: 1;
+                      transform: scale(1);
+                    }
+                  }
+                  @keyframes pulse-red {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.6; }
+                  }
+                `}</style>
               </div>
             )}
           </div>

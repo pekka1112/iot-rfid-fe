@@ -43,7 +43,8 @@ function ParkingGrid({ logs, cards }) {
       boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
       overflow: 'hidden',
     }}>
-      <div style={{
+
+ <div style={{
         padding: '10px 16px',
         backgroundColor: '#f8fafc',
         borderBottom: '1px solid #e2e8f0',
@@ -69,24 +70,25 @@ function ParkingGrid({ logs, cards }) {
         </div>
       </div>
 
-      <div style={{ padding: '12px 16px', position: 'relative' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+
+      <div style={{ padding: '10px 14px', position: 'relative' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {Array.from({ length: TOTAL_SLOTS }, (_, i) => {
             const plate = occupiedPlates[i] || null;
             return (
               <div
                 key={i}
                 style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '8px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
                   border: plate ? 'none' : '1px solid #e2e8f0',
                   backgroundColor: plate ? '#1D9E75' : '#f8fafc',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '13px',
-                  fontWeight: '500',
+                  fontSize: '11px',
+                  fontWeight: '600',
                   color: plate ? '#04342C' : '#94a3b8',
                   cursor: plate ? 'pointer' : 'default',
                   position: 'relative',
@@ -98,7 +100,7 @@ function ParkingGrid({ logs, cards }) {
                   const parentRect = e.currentTarget.closest('.parking-grid-wrap').getBoundingClientRect();
                   setTooltip({
                     plate,
-                    top: rect.top - parentRect.top - 36,
+                    top: rect.top - parentRect.top - 28,
                     left: rect.left - parentRect.left + rect.width / 2,
                   });
                 }}
@@ -210,15 +212,15 @@ function DataTable({ title, columns, data, itemsPerPage = 5 }) {
   );
 }
 
-export default function DashboardPanels({ logs = [], cards = [] }) {
-
+export default function DashboardPanels({ logs = [], cards = [], cameras = [], totalResidents = 0, totalGuests = 0, totalIn = 0, totalOut = 0 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px', width: '100%' }}>
+
       <div className="parking-grid-wrap" style={{ position: 'relative' }}>
         <ParkingGrid logs={logs} cards={cards} />
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <DataTable
           title="Nhật ký hệ thống"
           columns={[
@@ -236,6 +238,48 @@ export default function DashboardPanels({ logs = [], cards = [] }) {
           ]}
           data={cards}
         />
+
+        {/* ── Panel thống kê + trạng thái cửa ── */}
+        <div style={{
+          flex: '0 0 200px',
+          backgroundColor: '#fff',
+          borderRadius: '10px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+          overflow: 'hidden',
+        }}>
+          <div style={{ padding: '10px 16px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 'bold', color: '#0f172a', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Tổng quan
+          </div>
+          <div style={{ padding: '0 16px' }}>
+            {[
+              { label: 'Số người dùng', value: totalResidents },
+              { label: 'Tổng khách',    value: totalGuests },
+              { label: 'Người đi vào',        value: totalIn },
+              { label: 'Người đi ra',         value: totalOut },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <span style={{ fontSize: '13px', color: '#64748b' }}>{label}</span>
+                <span style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>{value}</span>
+              </div>
+            ))}
+
+            <div style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '10px 0 4px' }}>
+              Trạng thái cửa
+            </div>
+            {(cameras || []).map((cam) => (
+              <div key={cam.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <span style={{ fontSize: '13px', color: '#64748b' }}>{cam.title}</span>
+                <span style={{
+                  padding: '2px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600',
+                  backgroundColor: cam.doorOpen ? '#dcfce7' : '#fee2e2',
+                  color: cam.doorOpen ? '#166534' : '#991b1b',
+                }}>
+                  {cam.doorOpen ? 'Mở' : 'Đóng'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

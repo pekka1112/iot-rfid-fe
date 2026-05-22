@@ -43,7 +43,27 @@ export default function LoginPage() {
         <div className="login-form-panel">
           <div className="login-card">
             <div className="login-card-header">
-              <p className="login-title">Hệ thống quản lý RFID</p>
+              {/* <p className="login-title">Hệ thống quản lý bãi xe thông minh - VPark</p> */}
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+    <span style={{
+      fontSize: '35px', fontWeight: 600, letterSpacing: '1px',
+      background: 'linear-gradient(90deg, #534AB7, #1D9E75)',
+      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      paddingBottom: '5px',
+    }}>
+      VPark System - AIOT
+    </span>
+    <span style={{
+      fontSize: '11px', fontWeight: 500,
+      letterSpacing: '4px', textTransform: 'uppercase',
+      background: 'linear-gradient(90deg, #7F77DD, #1D9E75)',
+      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
+    }}>
+      Hệ thống gửi xe thông minh
+    </span>
+  </div>
             </div>
             <form onSubmit={handleSubmit} className="login-form">
               <div className="login-field">

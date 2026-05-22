@@ -214,13 +214,13 @@ function DataTable({ title, columns, data, itemsPerPage = 5 }) {
 
 export default function DashboardPanels({ logs = [], cards = [], cameras = [], totalResidents = 0, totalGuests = 0, totalIn = 0, totalOut = 0 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', minHeight: 0 }}>
 
-      <div className="parking-grid-wrap" style={{ position: 'relative' }}>
+      <div className="parking-grid-wrap" style={{ position: 'relative', flexShrink: 0 }}>
         <ParkingGrid logs={logs} cards={cards} />
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start', width: '100%' }}>
         <DataTable
           title="Nhật ký hệ thống"
           columns={[

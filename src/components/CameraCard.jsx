@@ -10,6 +10,36 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
     onClose?.();
   };
 
+  const saveLog = async () => {
+
+  const response = await fetch(
+    "http://localhost:8080/api/access-logs/save",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    setCurrentUser({
+      name: data.residentName,
+      vehiclePlate: data.detectedPlate,
+      isVerified: data.isCorrectFaceAndPlate,
+      direction: data.direction,
+      detectedAt: data.timestamp,
+      failReason: data.failReason,
+      dbPlates: data.dbPlates
+    });
+  };
+
+ 
+
   const isActiveUser = isActive && currentUser;
   // Lấy chữ cái đầu của tên
   const avatarLetter = currentUser?.name

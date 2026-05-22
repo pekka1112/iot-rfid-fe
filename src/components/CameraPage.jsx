@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CurrentUserInfo from './CurrentUserInfo';
 
 export default function CameraPage({ cameras = [], onOpen, onClose }) {
   const [activeCamId, setActiveCamId] = useState(1);
@@ -474,6 +475,11 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
           <div>CLOCK: {new Date().toLocaleTimeString('vi-VN')}</div>
         </div>
       </div>
+
+      {/* Thông tin người dùng hiện tại */}
+      {currentCam.currentUser && (
+        <CurrentUserInfo currentUser={currentCam.currentUser} />
+      )}
     </div>
   );
 }

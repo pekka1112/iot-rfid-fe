@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import CameraCard from './components/CameraCard';
+import IntruderAlert from './components/IntruderAlert';
+import TestPanel from './components/TestPanel';
 import WarningBox from './components/WarningBox';
 import ResidentsPage from './components/ResidentsPage';
 import HistoryPage from './components/HistoryPage';
@@ -317,6 +319,41 @@ const handleDoorClose = async (id) => {
   }
 };
 
+// ===== TEST MODE HANDLERS =====
+const handleTestData = (scenarioId, testData) => {
+  console.log('🧪 Test Scenario:', scenarioId, testData);
+  
+  if (testData.camera && testData.currentUser) {
+    // Hiển thị người dùng xác thực
+    setCameras((prev) =>
+      prev.map((cam) =>
+        cam.id === testData.camera
+          ? { ...cam, currentUser: testData.currentUser }
+          : cam
+      )
+    );
+    // Clear alert nếu có
+    setIntruderAlert(null);
+  } else if (testData.camera && testData.alert) {
+    // Hiển thị cảnh báo người lạ
+    setCameras((prev) =>
+      prev.map((cam) =>
+        cam.id === testData.camera
+          ? { ...cam, currentUser: null }
+          : cam
+      )
+    );
+    setIntruderAlert(testData.alert);
+  }
+};
+
+const handleClearTestData = () => {
+  console.log('🧪 Clear Test Data');
+  setCameras((prev) =>
+    prev.map((cam) => ({ ...cam, currentUser: null }))
+  );
+  setIntruderAlert(null);
+};
 
   if (!hydrated) {
     return (
@@ -451,123 +488,17 @@ const handleDoorClose = async (id) => {
         ))}
       </div>
 
-      {/* === POPUP CẢNH BÁO NGƯỜI LẠ === */}
-      {intruderAlert && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.65)',
-          zIndex: 99999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          backdropFilter: 'blur(6px)',
-          animation: 'fadeIn 0.25s ease'
-        }}>
-          <div style={{
-            backgroundColor: '#0f172a',
-            border: '2px solid #ef4444',
-            borderRadius: '20px',
-            padding: '40px 36px 32px',
-            maxWidth: '440px',
-            width: '92%',
-            boxShadow: '0 0 80px rgba(239,68,68,0.45), 0 20px 60px rgba(0,0,0,0.5)',
-            color: '#f8fafc',
-            textAlign: 'center',
-            position: 'relative',
-          }}>
-            {/* Icon cảnh báo */}
-            <div style={{
-              width: '72px', height: '72px', borderRadius: '50%',
-              backgroundColor: 'rgba(239,68,68,0.15)',
-              border: '2px solid rgba(239,68,68,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px',
-              animation: 'pulse-warn 1.5s infinite ease-in-out'
-            }}>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
+      {/* Test Panel - Để test mà không ảnh hưởng API thực */}
+      <TestPanel 
+        onTestData={handleTestData}
+        onClearData={handleClearTestData}
+      />
 
-            <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '2px', color: '#ef4444', marginBottom: '8px' }}>CẢNH BÁO AN NINH</div>
-            <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#fef2f2', margin: '0 0 8px', letterSpacing: '-0.3px' }}>PHÁT HIỆN NGƯỜI LẠ</h2>
-            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px' }}>
-              Có người chưa được xác thực tại <span style={{ color: '#fca5a5', fontWeight: '700' }}>Cửa {intruderAlert.directionText}</span>
-            </p>
-
-            <div style={{
-              backgroundColor: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: '12px',
-              padding: '16px',
-              marginBottom: '28px',
-              display: 'flex', flexDirection: 'column', gap: '10px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Biển số phát hiện</span>
-                <span style={{ fontWeight: '800', fontSize: '15px', color: '#fca5a5', fontFamily: 'monospace', letterSpacing: '1px' }}>
-                  {intruderAlert.detectedPlate}
-                </span>
-              </div>
-              <div style={{ height: '1px', backgroundColor: 'rgba(239,68,68,0.15)' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Thời gian</span>
-                <span style={{ fontWeight: '600', fontSize: '13px', color: '#f8fafc' }}>{intruderAlert.time}</span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setIntruderAlert(null)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: 'rgba(255,255,255,0.05)',
-                  color: '#94a3b8',
-                  fontSize: '13px', fontWeight: '700',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#f8fafc'; }}
-                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#94a3b8'; }}
-              >
-                Bỏ qua
-              </button>
-              <button
-                onClick={() => setIntruderAlert(null)}
-                style={{
-                  flex: 2,
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  backgroundColor: '#ef4444',
-                  color: '#fff',
-                  fontSize: '13px', fontWeight: '800',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(239,68,68,0.4)',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-              >
-                ✓ Đã xử lý
-              </button>
-            </div>
-
-            <style>{`
-              @keyframes pulse-warn {
-                0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-                50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
-              }
-              @keyframes fadeIn {
-                from { opacity: 0; } to { opacity: 1; }
-              }
-            `}</style>
-          </div>
-        </div>
-      )}
+      {/* Intruder Alert Component */}
+      <IntruderAlert 
+        alert={intruderAlert} 
+        onClose={() => setIntruderAlert(null)} 
+      />
     </div>
   );
 }

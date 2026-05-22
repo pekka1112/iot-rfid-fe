@@ -93,8 +93,7 @@ body {
 
 .content-area {
   flex: 1 1 auto;
-  min-height: min-content;
-  /* padding: 20px 30px 28px; */
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0px;
@@ -102,15 +101,35 @@ body {
 
 .page-content {
   flex: 1;
+  min-height: 0;
   padding: 0px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .cameras-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-height: 60vh;
+  background-color: #0f172a;
+  align-content: stretch;
+}
+
+.cameras-grid > * {
+  min-height: 0;
+}
+
+.dashboard-panels-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background-color: #ffffff;
+  padding: 16px;
 }
 
 .warning-container {
@@ -138,11 +157,6 @@ body {
     border-radius: 0;
     box-shadow: none;
   }
-
-  .content-area,
-  .page-content {
-    padding: 24px;
-  }
 }
 
 @media (max-width: 767px) {
@@ -153,14 +167,23 @@ body {
   }
 }
 
+@media (max-width: 1200px) {
+  .cameras-grid {
+    grid-template-columns: repeat(2, 1fr);
+    min-height: 50vh;
+  }
+}
+
 @media (max-width: 768px) {
   .cameras-grid {
     grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 8px;
+    min-height: auto;
   }
 
-  .content-area,
-  .page-content {
-    padding: 4px;
+  .dashboard-panels-container {
+    padding: 8px;
   }
 }
 

@@ -336,3 +336,18 @@
   color: #94a3b8;
   font-size: 14px;
 }
+
+.dashboard-toggle-btn {
+  transition: all 0.3s ease;
+}
+
+.dashboard-toggle-btn.active {
+  background: #e0f2fe;
+  color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+}
+
+.dashboard-toggle-btn.active:hover {
+  background: #bae6fd;
+  color: #0369a1;
+}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Header.css';
 
-export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false }) {
+export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false, onToggleDashboard, isDashboardVisible = false }) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -339,6 +339,20 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
               </div>
             )}
           </div>
+
+          <button 
+            className={`action-btn dashboard-toggle-btn ${isDashboardVisible ? 'active' : ''}`}
+            onClick={onToggleDashboard}
+            title={isDashboardVisible ? 'Ẩn thông tin' : 'Hiển thị thông tin'}
+            aria-label={isDashboardVisible ? 'Ẩn thông tin' : 'Hiển thị thông tin'}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+          </button>
 
           <button className="action-btn message-btn">
              <span className="dot"></span>

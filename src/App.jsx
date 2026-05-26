@@ -15,6 +15,7 @@ import RfidCardsPage from './components/RfidCardsPage';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
 import DashboardPanels from './components/DashboardPanels';
+import DashboardModal from './components/DashboardModal';
 import AIChat from './components/AIChat';
 import CameraPage from './components/CameraPage';
 import './App.css';
@@ -25,6 +26,7 @@ function AppContent() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDashboardVisible, setIsDashboardVisible] = useState(true);
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
   const [fireAlert, setFireAlert] = useState(false);
@@ -388,11 +390,13 @@ const handleClearTestData = () => {
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
           fireAlert={fireAlert}
+          onToggleDashboard={() => setIsDashboardVisible(!isDashboardVisible)}
+          isDashboardVisible={isDashboardVisible}
         />
 
         {activeMenu === 'menu' && (
           <div className="page-content">
-            <div className="content-area">
+            <div className={`content-area ${!isDashboardVisible ? 'dashboard-hidden' : ''}`}>
 
               <div className="cameras-grid">
                 {cameras.map((camera) => (
@@ -408,19 +412,20 @@ const handleClearTestData = () => {
                 ))}
               </div>
 
-              
-
-              <div className="dashboard-panels-container">
-                <DashboardPanels 
-                  logs={logs} 
-                  cards={cards} 
+              {isDashboardVisible && (
+                <DashboardModal
+                  isOpen={isDashboardVisible}
+                  onClose={() => setIsDashboardVisible(false)}
+                  logs={logs}
+                  cards={cards}
                   cameras={cameras}
                   totalResidents={totalResidents}
                   totalGuests={cards.length}
                   totalIn={totalIn}
                   totalOut={totalOut}
+                  isOnHomePage={true}
                 />
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -461,6 +466,22 @@ const handleClearTestData = () => {
 
         {activeMenu === 'profile' && (
           <ProfilePage />
+        )}
+
+        {/* Dashboard Modal for other pages */}
+        {activeMenu !== 'menu' && (
+          <DashboardModal
+            isOpen={isDashboardVisible}
+            onClose={() => setIsDashboardVisible(false)}
+            logs={logs}
+            cards={cards}
+            cameras={cameras}
+            totalResidents={totalResidents}
+            totalGuests={cards.length}
+            totalIn={totalIn}
+            totalOut={totalOut}
+            isOnHomePage={false}
+          />
         )}
       </main>
 

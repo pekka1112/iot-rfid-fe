@@ -38,8 +38,6 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
     });
   };
 
- 
-
   const isActiveUser = isActive && currentUser;
   // Lấy chữ cái đầu của tên
   const avatarLetter = currentUser?.name
@@ -100,7 +98,7 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
 
   return (
     <div className="camera-card">
-      <div className={`camera-display ${isActive ? 'active' : 'inactive'}`} style={{ padding: '14px' }}>
+      <div className={`camera-display ${isActive ? 'active' : 'inactive'}`} style={{ padding: '5px' }}>
         <div className="camera-preview" style={{ position: 'relative', overflow: 'hidden', width: '100%', margin: 0 }}>
           {/* Overlay góc trên bên trái: Tên camera thu nhỏ kèm chấm xanh/xám thể hiện trạng thái hoạt động */}
           <div style={{

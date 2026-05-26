@@ -97,6 +97,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0px;
+  overflow-y: auto;
 }
 
 .page-content {
@@ -106,30 +107,53 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  height: 100%;
 }
 
 .cameras-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  padding: 16px;
+  padding: 5px;
   flex-grow: 1;
-  flex-shrink: 0;
-  min-height: 60vh;
+  flex-shrink: 1;
+  min-height: 0;
   background-color: #0f172a;
   align-content: stretch;
+  max-height: 60vh;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.content-area.dashboard-hidden .cameras-grid {
+  max-height: none;
+  height: 100%;
 }
 
 .cameras-grid > * {
   min-height: 0;
+  height: 100%;
 }
 
 .dashboard-panels-container {
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
+  max-height: 40vh;
   overflow-y: auto;
   background-color: #ffffff;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.dashboard-panels-container.hidden {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0;
+  border: none;
 }
 
 .warning-container {
@@ -180,10 +204,12 @@ body {
     padding: 8px;
     gap: 8px;
     min-height: auto;
+    max-height: 50vh;
   }
 
   .dashboard-panels-container {
     padding: 8px;
+    max-height: 50vh;
   }
 }
 

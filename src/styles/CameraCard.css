@@ -22,7 +22,7 @@
   padding: 12px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   position: relative;
   color: #0f172a;
   flex: 1;
@@ -65,8 +65,10 @@
 
 .camera-preview {
   width: 100%;
-  flex: 1;
-  min-height: 250px;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
+  min-height: 180px;
+  max-height: 320px;
   margin-top: 8px;
   border-radius: 14px;
   background:
@@ -81,6 +83,7 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-weight: 700;
+  overflow: hidden;
 }
 
 .camera-preview-badge {
@@ -91,22 +94,44 @@
 }
 
 .camera-user-panel {
-  padding: 14px;
+  padding: 10px 12px;
   background: #ffffff;
   border-top: 1px solid rgba(15, 23, 42, 0.06);
   flex-shrink: 0;
 }
 
-.camera-user-header {
+.camera-user-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.camera-user-row.compact {
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.camera-user-left {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 12px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.camera-user-left-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
 }
 
 .avatar-circle {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -114,51 +139,119 @@
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #ffffff;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 
 .camera-user-panel .user-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.camera-user-panel .user-type {
-  color: #64748b;
-  font-size: 12px;
-  margin: 3px 0 0;
+.camera-user-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
-.user-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+  white-space: nowrap;
 }
 
-.info-item {
+.pill-in {
+  color: #059669;
+  background: rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.22);
+}
+
+.pill-out {
+  color: #3b82f6;
+  background: rgba(59,130,246,0.12);
+  border-color: rgba(59,130,246,0.22);
+}
+
+.pill-verified {
+  color: #059669;
+  background: rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.22);
+}
+
+.meta-item {
   background: #f8fafc;
   border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 
-.info-label {
-  display: block;
-  font-size: 9px;
-  color: #94a3b8;
-  margin-bottom: 4px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 600;
+.meta-item.meta-combined {
+  margin-top: 0;
 }
 
-.info-value {
-  display: block;
-  font-size: 12px;
+.meta-item.meta-right {
+  flex: 0 0 auto;
+  min-width: 210px;
+  max-width: 58%;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.meta-row + .meta-row {
+  border-top: 1px dashed rgba(15, 23, 42, 0.10);
+}
+
+.meta-value {
+  display: inline-block;
+  font-size: 11px;
   color: #0f172a;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  min-width: 0;
+}
+
+.meta-plate {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.8px;
+}
+
+.camera-user-empty {
+  margin-top: 10px;
+  background: #f8fafc;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  border-radius: 10px;
+  padding: 10px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .info-item.info-empty {

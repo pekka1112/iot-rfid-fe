@@ -267,87 +267,58 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
       </div>
 
       <div className="camera-user-panel">
-        <div className="camera-user-header">
-          {/* Avatar */}
-          <div className="avatar-circle" style={{
-            background: isVerified
-              ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
-              : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
-          }}>
-            {isActiveUser ? avatarLetter : '?'}
+        <div className="camera-user-row compact">
+          <div className="camera-user-left">
+            <div
+              className="avatar-circle"
+              style={{
+                background: isVerified
+                  ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
+                  : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              }}
+            >
+              {isActiveUser ? avatarLetter : '?'}
+            </div>
+            <div className="camera-user-left-text">
+              <p className="user-name">{isActiveUser ? currentUser.name : 'Chưa có thông tin'}</p>
+              <div className="camera-user-badges">
+                {isActiveUser && dirLabel && (
+                  <span className={`pill ${currentUser.direction === 'IN' ? 'pill-in' : 'pill-out'}`}>
+                    {dirLabel}
+                  </span>
+                )}
+                {isActiveUser && isVerified && (
+                  <span className="pill pill-verified">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Xác thực
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <p className="user-name">
-              {isActiveUser ? currentUser.name : 'Chưa có thông tin'}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-              {isActiveUser && dirLabel && (
-                <span style={{
-                  fontSize: '11px', fontWeight: '700',
-                  color: currentUser.direction === 'IN' ? '#059669' : '#3b82f6',
-                  backgroundColor: currentUser.direction === 'IN' ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)',
-                  border: `1px solid ${currentUser.direction === 'IN' ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)'}`,
-                  padding: '2px 8px', borderRadius: '999px'
-                }}>
-                  {dirLabel}
-                </span>
-              )}
-              {isActiveUser && isVerified && (
-                <span style={{
-                  fontSize: '11px', fontWeight: '700',
-                  color: '#059669',
-                  backgroundColor: 'rgba(16,185,129,0.1)',
-                  border: '1px solid rgba(16,185,129,0.25)',
-                  padding: '2px 8px', borderRadius: '999px',
-                  display: 'flex', alignItems: 'center', gap: '3px'
-                }}>
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  Xác thực
-                </span>
-              )}
-              {!isActiveUser && (
-                <p className="user-type" style={{ margin: 0 }}>Không có dữ liệu</p>
-              )}
+
+          <div className="meta-item meta-combined meta-right">
+            <div className="meta-row">
+              <span className="meta-value meta-plate">Biển số xe: {isActiveUser ? (currentUser.vehiclePlate || '—') : '—'}</span>
+            </div>
+            <div className="meta-row">
+              <span className="meta-value" style={{ color: isVerified ? '#059669' : '#0f172a' }}>
+                Trạng thái: {isActiveUser ? (currentUser.status || '—') : '—'}
+              </span>
+            </div>
+            <div className="meta-row">
+               <span className="meta-value">Thời gian ghi nhận: {isActiveUser ? (currentUser.detectedAt || '—') : '—'}</span>
             </div>
           </div>
         </div>
 
-        <div className="user-info-grid">
-          {isActiveUser ? (
-            <>
-              {/* Biển số xe */}
-              <div className="info-item" style={{ gridColumn: currentUser.vehiclePlate ? 'auto' : '1 / -1' }}>
-                <span className="info-label">Biển số xe</span>
-                <span className="info-value" style={{
-                  fontFamily: currentUser.vehiclePlate ? 'monospace' : 'inherit',
-                  letterSpacing: currentUser.vehiclePlate ? '1px' : 'normal',
-                  fontWeight: '700',
-                  color: currentUser.vehiclePlate ? '#0f172a' : '#94a3b8'
-                }}>
-                  {currentUser.vehiclePlate || '—'}
-                </span>
-              </div>
-              {/* Trạng thái */}
-              <div className="info-item">
-                <span className="info-label">Trạng thái</span>
-                <span className="info-value" style={{ color: isVerified ? '#059669' : '#0f172a' }}>
-                  {currentUser.status || '—'}
-                </span>
-              </div>
-              {/* Thời gian */}
-              <div className="info-item" style={{ gridColumn: '1 / -1' }}>
-                <span className="info-label">Thời gian phát hiện</span>
-                <span className="info-value">{currentUser.detectedAt || '—'}</span>
-              </div>
-            </>
-          ) : (
-            <div className="info-item info-empty">
-              Không có dữ liệu người dùng để hiển thị
-            </div>
-          )}
-        </div>
+        {/* {!isActiveUser && (
+          <div className="camera-user-empty">
+            Không có dữ liệu người dùng để hiển thị
+          </div>
+        )} */}
       </div>
 
       <div className="camera-controls">

@@ -10,29 +10,76 @@ export default function HistoryPage() {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
+        const collapseWindowMs = 60 * 1000;
+        const plateOf = (log) => (log?.vehiclePlate || log?.detectedPlate || '').trim();
+        const platePresent = (log) => Boolean(plateOf(log));
+        const isVerifiedStrict = (log) => {
+          const okByAggregate = log?.isCorrectFaceAndPlate === true;
+          const okByFlags = log?.faceMatch === true && log?.plateMatch === true;
+          return platePresent(log) && (okByAggregate || okByFlags);
+        };
+
         const response = await fetch('http://localhost:8080/api/access-logs');
         const data = await response.json();
-        const formatted = data.map(log => {
-          const dateObj = new Date(log.createdAt);
-          const filterDate = dateObj.toISOString().split('T')[0];
-          const dateFormatted = dateObj.toLocaleDateString('vi-VN');
-          const timeFormatted = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          
-          return {
-            id: log.logId,
-            name: log.residentName || 'Khách',
-            room: '—',
-            action: log.direction === 'IN' ? 'Vào' : 'Ra',
-            time: timeFormatted,
-            date: filterDate,
-            dateFormatted: dateFormatted,
-            door: log.cameraName || '—',
-            vehiclePlate: log.vehiclePlate || log.detectedPlate,
-            faceMatch: log.faceMatch,
-            plateMatch: log.plateMatch
-          };
-        });
-        setHistoryData(formatted);
+
+        const sorted = [...(data || [])].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        const candidates = sorted
+          .filter(isVerifiedStrict)
+          .map((log) => {
+            const dateObj = new Date(log.createdAt);
+            const filterDate = dateObj.toISOString().split('T')[0];
+            const dateFormatted = dateObj.toLocaleDateString('vi-VN');
+            const timeFormatted = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            return {
+              id: log.logId,
+              createdAtMs: dateObj.getTime(),
+              name: log.residentName || 'Khách',
+              room: '—',
+              action: log.direction === 'IN' ? 'Vào' : 'Ra',
+              time: timeFormatted,
+              date: filterDate,
+              dateFormatted,
+              door: log.cameraName || '—',
+              vehiclePlate: plateOf(log) || undefined,
+              faceMatch: log.faceMatch,
+              plateMatch: log.plateMatch,
+              duplicateCount: 0,
+              collapsedIds: [],
+            };
+          });
+
+        const byKey = new Map();
+        const collapsed = [];
+        for (const row of candidates) {
+          const key = [
+            row.action || '',
+            row.vehiclePlate || '',
+            row.name || '',
+            row.door || '',
+          ].join('|');
+
+          const existingIdx = byKey.get(key);
+          if (existingIdx === undefined) {
+            byKey.set(key, collapsed.length);
+            collapsed.push(row);
+            continue;
+          }
+
+          const existing = collapsed[existingIdx];
+          if (existing && (existing.createdAtMs - row.createdAtMs) <= collapseWindowMs) {
+            existing.duplicateCount += 1;
+            existing.collapsedIds.push(row.id);
+          } else {
+            byKey.set(key, collapsed.length);
+            collapsed.push(row);
+          }
+        }
+
+        setHistoryData(collapsed);
       } catch (err) {
         console.error('Lỗi khi lấy lịch sử:', err);
       }

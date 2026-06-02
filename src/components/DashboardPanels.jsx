@@ -170,12 +170,30 @@ function DataTable({ title, columns, data, itemsPerPage = 5 }) {
                 {columns.map((col, cIdx) => (
                   <td key={cIdx} style={{ padding: '8px 12px', color: '#334155', whiteSpace: 'nowrap' }}>
                     {col.accessor === 'action' ? (
-                      <span style={{
-                        padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600',
-                        backgroundColor: row[col.accessor] === 'Xe vào' ? '#dcfce7' : row[col.accessor] === 'Xe ra' ? '#fee2e2' : '#fef9c3',
-                        color: row[col.accessor] === 'Xe vào' ? '#166534' : row[col.accessor] === 'Xe ra' ? '#991b1b' : '#854d0e'
-                      }}>
-                        {row[col.accessor]}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600',
+                          backgroundColor: row[col.accessor] === 'Xe vào' ? '#dcfce7' : row[col.accessor] === 'Xe ra' ? '#fee2e2' : '#fef9c3',
+                          color: row[col.accessor] === 'Xe vào' ? '#166534' : row[col.accessor] === 'Xe ra' ? '#991b1b' : '#854d0e'
+                        }}>
+                          {row[col.accessor]}
+                        </span>
+                        {row.duplicateCount > 0 && (
+                          <span
+                            title="Các bản ghi trùng trong 60 giây đã được gộp"
+                            style={{
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              fontSize: '11px',
+                              fontWeight: '700',
+                              backgroundColor: '#e2e8f0',
+                              color: '#0f172a',
+                              border: '1px solid #cbd5e1',
+                            }}
+                          >
+                            Gộp +{row.duplicateCount}
+                          </span>
+                        )}
                       </span>
                     ) : row[col.accessor]}
                   </td>

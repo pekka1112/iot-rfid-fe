@@ -13,6 +13,7 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
     doorOpen: false,
     currentUser: null,
   };
+  const canOpenDoor = currentCam.currentUser?.isVerified === true;
 
   const entryCam = cameras.find((c) => c.id === 1) || { title: 'Camera Vào', doorOpen: false };
   const exitCam = cameras.find((c) => c.id === 2) || { title: 'Camera Ra', doorOpen: false };
@@ -50,6 +51,8 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
   };
 
   const handleOpen = () => {
+    // Chỉ cho mở cửa khi đã xác thực đủ mặt + biển số
+    if (!canOpenDoor) return;
     onOpen?.(currentCam.id);
   };
 
@@ -398,6 +401,8 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
               <button
                 type="button"
                 onClick={handleOpen}
+                disabled={!canOpenDoor}
+                title={!canOpenDoor ? 'Chỉ mở cửa khi đã xác thực mặt + biển số' : 'Mở cửa'}
                 style={{
                   flex: 1,
                   backgroundColor: '#10b981',
@@ -407,12 +412,13 @@ export default function CameraPage({ cameras = [], onOpen, onClose }) {
                   padding: '6px 8px',
                   fontSize: '11px',
                   fontWeight: '800',
-                  cursor: 'pointer',
+                  cursor: canOpenDoor ? 'pointer' : 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '4px',
-                  transition: 'background-color 0.2s'
+                  transition: 'background-color 0.2s',
+                  opacity: canOpenDoor ? 1 : 0.55,
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#059669'}
                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#10b981'}

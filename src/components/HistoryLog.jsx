@@ -41,16 +41,35 @@ export default function HistoryLog({ data }) {
                     <span className="history-door-pill" style={{ fontWeight: 600 }}>{item.vehiclePlate || '—'}</span>
                   </td>
                   <td>
-                    <span
-                      className={`history-action-pill ${
-                        item.action === 'Vào'
-                          ? 'history-action-in'
-                          : item.action === 'Ra'
-                            ? 'history-action-out'
-                            : 'history-action-other'
-                      }`}
-                    >
-                      {item.action}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        className={`history-action-pill ${
+                          item.action === 'Vào'
+                            ? 'history-action-in'
+                            : item.action === 'Ra'
+                              ? 'history-action-out'
+                              : 'history-action-other'
+                        }`}
+                      >
+                        {item.action}
+                      </span>
+                      {item.duplicateCount > 0 && (
+                        <span
+                          title="Các bản ghi trùng trong 60 giây đã được gộp"
+                          style={{
+                            padding: '2px 8px',
+                            borderRadius: '999px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            backgroundColor: '#e2e8f0',
+                            color: '#0f172a',
+                            border: '1px solid #cbd5e1',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Gộp +{item.duplicateCount}
+                        </span>
+                      )}
                     </span>
                   </td>
                   <td style={{ fontSize: '1.2rem', letterSpacing: '4px' }}>

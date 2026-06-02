@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import axios from 'axios';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import CameraCard from './components/CameraCard';
@@ -22,7 +23,8 @@ import './App.css';
 
 function AppContent() {
   const { isLoggedIn, hydrated } = useAuth();
-  const [activeMenu, setActiveMenu] = useState('menu');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -30,16 +32,49 @@ function AppContent() {
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
   const [fireAlert, setFireAlert] = useState(false);
-  // Cảnh báo người lạ: { directionText, detectedPlate, time, camId }
   const [intruderAlert, setIntruderAlert] = useState(null);
-  // Ref để truy cập danh sách cư dân mới nhất trong closure polling
   const residentsRef = useRef([]);
-  // Ref để track logId cuối cùng đã xử lý mỗi chiều (IN/OUT)
   const lastLogIdRef = useRef({ IN: null, OUT: null });
+  const notifIdRef = useRef(0);
 
   const [residents, setResidents] = useState([]);
   const [logs, setLogs] = useState([]);
   const [cards, setCards] = useState([]);
+  const [cameras, setCameras] = useState([
+    { id: 1, title: 'Camera Vào', isActive: true, doorOpen: false, currentUser: null },
+    { id: 2, title: 'Camera Ra', isActive: true, doorOpen: false, currentUser: null },
+  ]);
+
+  // Map routes to menu names for sidebar
+  const getActiveMenuFromPath = () => {
+    const path = location.pathname;
+    if (path === '/') return 'menu';
+    if (path.includes('residents')) return 'resident';
+    if (path.includes('camera')) return 'camera';
+    if (path.includes('history')) return 'history';
+    if (path.includes('rfid')) return 'rfid';
+    if (path.includes('settings')) return 'settings';
+    if (path.includes('search')) return 'search';
+    if (path.includes('profile')) return 'profile';
+    return 'menu';
+  };
+
+  const handleMenuChange = (menu) => {
+    const routes = {
+      menu: '/',
+      resident: '/residents',
+      camera: '/camera',
+      history: '/history',
+      rfid: '/rfid',
+      settings: '/settings',
+      search: '/search',
+      profile: '/profile',
+    };
+    navigate(routes[menu] || '/');
+    if (mobileSidebarOpen) {
+      setMobileSidebarOpen(false);
+    }
+  };
 
   const fetchResidents = async () => {
     try {
@@ -60,23 +95,73 @@ function AppContent() {
       if (response.data) {
         const rawLogs = response.data;
 
-        // Format cho bảng nhật ký
-        const formattedLogs = rawLogs.map((log) => {
-          const dateObj = new Date(log.createdAt);
-          const timeFormatted = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          const dateFormatted = dateObj.toLocaleDateString('vi-VN');
-          return {
-            id: log.logId,
-            time: `${timeFormatted} ${dateFormatted}`,
-            action: log.direction === 'IN' ? 'Xe vào' : 'Xe ra',
-            detail: `${log.residentName || 'Khách'} - ${log.vehiclePlate || log.detectedPlate || 'Không rõ biển số'}`,
-            vehiclePlate: log.vehiclePlate || log.detectedPlate,
-            direction: log.direction,
-            residentName: log.residentName,
-            isCorrectFaceAndPlate: log.isCorrectFaceAndPlate,
-          };
-        });
-        setLogs(formattedLogs);
+        const collapseWindowMs = 60 * 1000;
+
+        const plateOf = (log) => (log?.vehiclePlate || log?.detectedPlate || '').trim();
+        const platePresent = (log) => Boolean(plateOf(log));
+        const isVerifiedStrict = (log) => {
+          // Ưu tiên field tổng hợp từ backend, fallback theo 2 cờ match nếu backend trả.
+          const okByAggregate = log?.isCorrectFaceAndPlate === true;
+          const okByFlags = log?.faceMatch === true && log?.plateMatch === true;
+          return platePresent(log) && (okByAggregate || okByFlags);
+        };
+
+        // Sort mới -> cũ để gộp trùng về bản ghi mới nhất
+        const sorted = [...rawLogs].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        // Format + lọc chỉ hiển thị log hợp lệ (biển + khớp mặt/biển)
+        const candidates = sorted
+          .filter(isVerifiedStrict)
+          .map((log) => {
+            const dateObj = new Date(log.createdAt);
+            const timeFormatted = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateFormatted = dateObj.toLocaleDateString('vi-VN');
+            return {
+              id: log.logId,
+              createdAtMs: dateObj.getTime(),
+              time: `${timeFormatted} ${dateFormatted}`,
+              action: log.direction === 'IN' ? 'Xe vào' : 'Xe ra',
+              detail: `${log.residentName || 'Khách'} - ${plateOf(log) || 'Không rõ biển số'}`,
+              vehiclePlate: plateOf(log) || undefined,
+              direction: log.direction,
+              residentName: log.residentName,
+              isCorrectFaceAndPlate: log.isCorrectFaceAndPlate,
+              duplicateCount: 0,
+              collapsedIds: [],
+            };
+          });
+
+        // Gộp các bản ghi trùng trong 60s theo key
+        const byKey = new Map();
+        const collapsed = [];
+        for (const row of candidates) {
+          const key = [
+            row.direction || '',
+            row.vehiclePlate || '',
+            row.residentName || '',
+          ].join('|');
+
+          const existingIdx = byKey.get(key);
+          if (existingIdx === undefined) {
+            byKey.set(key, collapsed.length);
+            collapsed.push(row);
+            continue;
+          }
+
+          const existing = collapsed[existingIdx];
+          if (existing && (existing.createdAtMs - row.createdAtMs) <= collapseWindowMs) {
+            existing.duplicateCount += 1;
+            existing.collapsedIds.push(row.id);
+          } else {
+            // Ngoài cửa sổ 60s => coi là event mới
+            byKey.set(key, collapsed.length);
+            collapsed.push(row);
+          }
+        }
+
+        setLogs(collapsed);
 
         // --- Phát hiện log mới nhất theo từng chiều và xử lý hiển thị ---
         ['IN', 'OUT'].forEach((dir) => {
@@ -104,8 +189,9 @@ function AppContent() {
           const dateObj = new Date(latestLog.createdAt);
           const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           const dateStr = dateObj.toLocaleDateString('vi-VN');
-
-          if (latestLog.isCorrectFaceAndPlate === true) {
+          console.log(latestLog)
+          // Chỉ hiển thị user khi đạt đủ điều kiện: có biển + khớp mặt/biển
+          if (isVerifiedStrict(latestLog)) {
             // Tìm cư dân trong danh sách
             const residentId = latestLog.residentId;
             const matched = residentsRef.current.find(
@@ -120,7 +206,7 @@ function AppContent() {
                   currentUser: {
                     name: matched?.fullName || matched?.name || latestLog.residentName || 'Không rõ',
                     room: matched?.room || matched?.address || matched?.apartment || '',
-                    vehiclePlate: latestLog.vehiclePlate || latestLog.detectedPlate || '',
+                    vehiclePlate: plateOf(latestLog) || '',
                     status: 'Đã xác thực',
                     detectedAt: `${timeStr} ${dateStr}`,
                     direction: dir,
@@ -133,12 +219,10 @@ function AppContent() {
             // Xoá cảnh báo cũ của camera này (nếu có)
             setIntruderAlert((prev) => (prev?.camId === camId ? null : prev));
 
-          } else if (latestLog.isCorrectFaceAndPlate === false) {
-            // Xoá thông tin người dùng camera đó
+          } else {
+            // Không thỏa face + plate strict => không coi là xác thực
             setCameras((prev) =>
-              prev.map((cam) =>
-                cam.id === camId ? { ...cam, currentUser: null } : cam
-              )
+              prev.map((cam) => (cam.id === camId ? { ...cam, currentUser: null } : cam))
             );
 
             // Chỉ hiện popup khi là log MỚI (không phải lần đầu load)
@@ -175,11 +259,6 @@ function AppContent() {
   const totalGuests = cards.length + guestLogs.length;
   const totalIn = logs.filter(log => log.direction === 'IN' || log.action === 'Xe vào').length;
   const totalOut = logs.filter(log => log.direction === 'OUT' || log.direction === 'Ra' || log.action === 'Xe ra').length;
-
-  const [cameras, setCameras] = useState([
-    { id: 1, title: 'Camera Vào', isActive: true, doorOpen: false, currentUser: null },
-    { id: 2, title: 'Camera Ra', isActive: true, doorOpen: false, currentUser: null },
-  ]);
 
   const fetchScannedData = async () => {
     try {
@@ -225,18 +304,21 @@ function AppContent() {
       } else {
         setFireAlert(false);
       }
-    } catch (error) {
+    } catch {
       // Bỏ qua nếu backend chưa có API này, bạn có thể comment dòng setFireAlert(true) dưới đây để test UI
       // setFireAlert(true); // Uncomment để test giao diện cảnh báo cháy
     }
   };
 
   useEffect(() => {
-    fetchScannedData();
-    fetchFireStatus();
-    fetchResidents();
-    fetchLogs();
-    fetchCards();
+    const init = async () => {
+      await fetchScannedData();
+      await fetchFireStatus();
+      await fetchResidents();
+      await fetchLogs();
+      await fetchCards();
+    };
+    init();
 
     // Tự động cập nhật mỗi 5 giây
     const interval = setInterval(() => {
@@ -262,7 +344,7 @@ function AppContent() {
     const cameraName = id === 1 ? 'Cửa Vào' : 'Cửa Ra';
     const actionName = isOpen ? 'mở' : 'đóng';
     const newNotif = {
-      id: Date.now(),
+      id: (notifIdRef.current += 1),
       message: `${cameraName} đã được ${actionName}`,
       timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
       type: isOpen ? 'open' : 'close'
@@ -302,6 +384,14 @@ function AppContent() {
   // };
 
 const handleDoorOpen = async (id) => {
+  // Chỉ mở cửa (qua đó backend mới ghi log) khi đã xác thực đủ mặt + biển số
+  const cam = cameras.find((c) => c.id === id);
+  const canOpen = cam?.currentUser?.isVerified === true;
+  if (!canOpen) {
+    console.warn('Blocked opening door: face + plate not verified', { id });
+    return;
+  }
+
   try {
     const response = await axios.post('http://localhost:8000/relay/OPEN');
     console.log('Mở cửa response:', response.data); // xem log này trả gì
@@ -371,11 +461,13 @@ const handleClearTestData = () => {
     return <LoginPage />;
   }
 
+  const activeMenu = getActiveMenuFromPath();
+
   return (
     <div className="app-container">
       <Sidebar
         activeMenu={activeMenu}
-        onMenuChange={setActiveMenu}
+        onMenuChange={handleMenuChange}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         isCollapsed={isSidebarCollapsed}
@@ -386,7 +478,7 @@ const handleClearTestData = () => {
       <main className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Header 
           onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} 
-          onMenuChange={setActiveMenu}
+          onMenuChange={handleMenuChange}
           notifications={notifications}
           onClearNotifications={() => setNotifications([])}
           fireAlert={fireAlert}
@@ -420,7 +512,7 @@ const handleClearTestData = () => {
                   cards={cards}
                   cameras={cameras}
                   totalResidents={totalResidents}
-                  totalGuests={cards.length}
+                  totalGuests={totalGuests}
                   totalIn={totalIn}
                   totalOut={totalOut}
                   isOnHomePage={true}
@@ -477,7 +569,7 @@ const handleClearTestData = () => {
             cards={cards}
             cameras={cameras}
             totalResidents={totalResidents}
-            totalGuests={cards.length}
+            totalGuests={totalGuests}
             totalIn={totalIn}
             totalOut={totalOut}
             isOnHomePage={false}
@@ -524,12 +616,4 @@ const handleClearTestData = () => {
   );
 }
 
-function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
-}
-
-export default App;
+export default AppContent;

@@ -3,39 +3,13 @@ import '../styles/CameraCard.css';
 
 export default function CameraCard({ title, isActive, doorOpen, currentUser, onOpen, onClose }) {
   const handleOpen = () => {
+    // Chỉ cho mở cửa khi đã xác thực đủ mặt + biển số
+    if (!isVerified) return;
     onOpen?.();
   };
 
   const handleClose = () => {
     onClose?.();
-  };
-
-  const saveLog = async () => {
-
-  const response = await fetch(
-    "http://localhost:8080/api/access-logs/save",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    }
-    );
-
-    const data = await response.json();
-
-    console.log(data);
-
-    setCurrentUser({
-      name: data.residentName,
-      vehiclePlate: data.detectedPlate,
-      isVerified: data.isCorrectFaceAndPlate,
-      direction: data.direction,
-      detectedAt: data.timestamp,
-      failReason: data.failReason,
-      dbPlates: data.dbPlates
-    });
   };
 
   const isActiveUser = isActive && currentUser;
@@ -53,8 +27,8 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
   const CAM_PASS = "Abc123456";
   
   // Trạng thái timestamp để cập nhật ảnh (tạo hiệu ứng video giả)
-  const [timestamp, setTimestamp] = useState(Date.now());
-  const [reloadToken, setReloadToken] = useState(Date.now());
+  const [timestamp, setTimestamp] = useState(() => Date.now());
+  const [reloadToken, setReloadToken] = useState(() => Date.now());
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -377,7 +351,14 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
       </div>
 
       <div className="camera-controls">
-        <button type="button" className="btn-door btn-door-open" onClick={handleOpen}>
+        <button
+          type="button"
+          className="btn-door btn-door-open"
+          onClick={handleOpen}
+          disabled={!isVerified}
+          title={!isVerified ? 'Chỉ mở cửa khi đã xác thực mặt + biển số' : 'Mở cửa'}
+          style={{ opacity: isVerified ? 1 : 0.55, cursor: isVerified ? 'pointer' : 'not-allowed' }}
+        >
           <span className="btn-door-icon" aria-hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />

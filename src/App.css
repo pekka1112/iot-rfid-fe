@@ -120,9 +120,9 @@ body {
   min-height: 0;
   background-color: #0f172a;
   align-content: stretch;
-  max-height: 60vh;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+  /* Không giới hạn chiều cao để tránh card bị tràn/đè nội dung */
+  max-height: none;
+  overflow: visible;
 }
 
 .content-area.dashboard-hidden .cameras-grid {
@@ -132,7 +132,7 @@ body {
 
 .cameras-grid > * {
   min-height: 0;
-  height: 100%;
+  height: auto;
 }
 
 .dashboard-panels-container {
@@ -204,7 +204,8 @@ body {
     padding: 8px;
     gap: 8px;
     min-height: auto;
-    max-height: 50vh;
+    max-height: none;
+    overflow: visible;
   }
 
   .dashboard-panels-container {

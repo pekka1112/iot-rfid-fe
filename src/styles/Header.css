@@ -351,3 +351,18 @@
   background: #bae6fd;
   color: #0369a1;
 }
+
+.message-btn {
+  transition: all 0.3s ease;
+}
+
+.message-btn.active {
+  background: #ede9fe;
+  color: #534AB7;
+  box-shadow: 0 0 0 2px rgba(83, 74, 183, 0.2);
+}
+
+.message-btn.active:hover {
+  background: #ddd6fe;
+  color: #4338ca;
+}

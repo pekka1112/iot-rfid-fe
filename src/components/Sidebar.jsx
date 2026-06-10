@@ -9,7 +9,7 @@ function NavIcon({ children }) {
   );
 }
 
-export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseMobile, isCollapsed, onToggleCollapse, onToggleChat }) {
+export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseMobile, isCollapsed, onToggleCollapse }) {
   const handleLogoClick = () => {
     onMenuChange('search');
   };
@@ -133,23 +133,6 @@ export default function Sidebar({ activeMenu, onMenuChange, mobileOpen, onCloseM
             {!isCollapsed && <span className="menu-label">Lịch sử</span>}
           </button>
         </nav>
-
-        <div style={{ flex: 1 }} />
-        
-        <div className="sidebar-bottom" style={{ padding: '0 0 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <button
-            type="button"
-            className="menu-item"
-            onClick={onToggleChat}
-          >
-            <NavIcon>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-            </NavIcon>
-            {!isCollapsed && <span className="menu-label">Chat AI</span>}
-          </button>
-        </div>
       </div>
     </aside>
     </>

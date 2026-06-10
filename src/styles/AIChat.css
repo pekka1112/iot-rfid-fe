@@ -186,6 +186,31 @@
   cursor: not-allowed;
 }
 
+.ai-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.ai-chat-suggestion-chip {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.ai-chat-suggestion-chip:hover {
+  background: #dbeafe;
+  border-color: rgba(37, 99, 235, 0.45);
+}
+
 @media (max-width: 480px) {
   .ai-chat-container {
     width: 100%;

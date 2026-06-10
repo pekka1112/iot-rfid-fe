@@ -113,26 +113,31 @@ body {
 .cameras-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
   gap: 16px;
   padding: 5px;
-  flex-grow: 1;
-  flex-shrink: 1;
+  flex: 1 1 auto;
   min-height: 0;
   background-color: #0f172a;
-  align-content: stretch;
-  /* Không giới hạn chiều cao để tránh card bị tràn/đè nội dung */
+  align-items: stretch;
   max-height: none;
   overflow: visible;
 }
 
+.content-area.dashboard-hidden {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .content-area.dashboard-hidden .cameras-grid {
-  max-height: none;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
 }
 
 .cameras-grid > * {
   min-height: 0;
-  height: auto;
+  height: 100%;
 }
 
 .dashboard-panels-container {
@@ -194,18 +199,22 @@ body {
 @media (max-width: 1200px) {
   .cameras-grid {
     grid-template-columns: repeat(2, 1fr);
-    min-height: 50vh;
   }
 }
 
 @media (max-width: 768px) {
   .cameras-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
     padding: 8px;
     gap: 8px;
     min-height: auto;
     max-height: none;
     overflow: visible;
+  }
+
+  .cameras-grid > * {
+    height: auto;
   }
 
   .dashboard-panels-container {
@@ -245,6 +254,14 @@ body {
 
 .toast-item.close {
   border-left-color: #ef4444;
+}
+
+.toast-item.rfid {
+  border-left-color: #534AB7;
+}
+
+.toast-item.rfid .toast-icon {
+  color: #534AB7;
 }
 
 .toast-icon {

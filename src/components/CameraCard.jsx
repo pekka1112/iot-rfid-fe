@@ -72,8 +72,8 @@ export default function CameraCard({ title, isActive, doorOpen, currentUser, onO
 
   return (
     <div className="camera-card">
-      <div className={`camera-display ${isActive ? 'active' : 'inactive'}`} style={{ padding: '5px' }}>
-        <div className="camera-preview" style={{ position: 'relative', overflow: 'hidden', width: '100%', margin: 0 }}>
+      <div className={`camera-display ${isActive ? 'active' : 'inactive'}`}>
+        <div className="camera-preview">
           {/* Overlay góc trên bên trái: Tên camera thu nhỏ kèm chấm xanh/xám thể hiện trạng thái hoạt động */}
           <div style={{
             position: 'absolute',

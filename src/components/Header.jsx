@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Header.css';
 
-export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false, onToggleDashboard, isDashboardVisible = false }) {
+export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false, onToggleDashboard, isDashboardVisible = false  , onToggleChat, isChatOpen = false}) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -354,8 +354,14 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
             </svg>
           </button>
 
-          <button className="action-btn message-btn">
-             <span className="dot"></span>
+         <button
+            type="button"
+            className={`action-btn message-btn ${isChatOpen ? 'active' : ''}`}
+            onClick={onToggleChat}
+            title="Trợ lý AI"
+            aria-label={isChatOpen ? 'Đóng trợ lý AI' : 'Mở trợ lý AI'}
+          >
+
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>

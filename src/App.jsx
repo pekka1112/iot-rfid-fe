@@ -28,14 +28,46 @@ function AppContent() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isDashboardVisible, setIsDashboardVisible] = useState(true);
+  const [isDashboardVisible, setIsDashboardVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
   const [fireAlert, setFireAlert] = useState(false);
   const [intruderAlert, setIntruderAlert] = useState(null);
   const residentsRef = useRef([]);
   const lastLogIdRef = useRef({ IN: null, OUT: null });
+  const cardsRef = useRef([]);
+  const cardsReadyRef = useRef(false);
+  const recentRfidSwipeRef = useRef(null);
   const notifIdRef = useRef(0);
+
+  const showRfidToast = (direction, plate) => {
+    const label = direction === 'IN' || direction === 'Vào' ? 'Vào' : 'Ra';
+    const plateText = plate && plate !== '—' ? ` · ${plate}` : '';
+    const newToast = {
+      id: (notifIdRef.current += 1),
+      message: `Quẹt thẻ thành công - ${label}${plateText}`,
+      timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      type: 'rfid',
+    };
+    setToasts((prev) => [...prev, newToast]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== newToast.id));
+    }, 4000);
+  };
+
+  const isRfidOnlyLog = (log) => {
+    const faceOk = log?.faceMatch === true;
+    const plateOk = log?.plateMatch === true;
+    if (plateOk && !faceOk) return true;
+    const reason = String(log?.failReason || '').toLowerCase();
+    return reason.includes('rfid');
+  };
+
+  const hadRecentRfidSwipe = (direction) => {
+    const recent = recentRfidSwipeRef.current;
+    if (!recent || recent.direction !== direction) return false;
+    return Date.now() - recent.at < 60000;
+  };
 
   const [residents, setResidents] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -220,20 +252,46 @@ function AppContent() {
             setIntruderAlert((prev) => (prev?.camId === camId ? null : prev));
 
           } else {
-            // Không thỏa face + plate strict => không coi là xác thực
-            setCameras((prev) =>
-              prev.map((cam) => (cam.id === camId ? { ...cam, currentUser: null } : cam))
-            );
+            const plate = plateOf(latestLog) || '—';
+            const isRfidEvent = isRfidOnlyLog(latestLog) || hadRecentRfidSwipe(dir);
 
-            // Chỉ hiện popup khi là log MỚI (không phải lần đầu load)
-            if (isNewLog) {
-              setIntruderAlert({
-                camId,
-                directionText,
-                detectedPlate: latestLog.detectedPlate || latestLog.vehiclePlate || 'Không rõ',
-                time: `${timeStr} ${dateStr}`,
-                logId: latestLog.logId,
-              });
+            if (isRfidEvent) {
+              setCameras((prev) =>
+                prev.map((cam) => {
+                  if (cam.id !== camId) return cam;
+                  return {
+                    ...cam,
+                    currentUser: {
+                      name: latestLog.residentName || 'Thẻ RFID',
+                      vehiclePlate: plate !== '—' ? plate : '',
+                      status: 'RFID',
+                      detectedAt: `${timeStr} ${dateStr}`,
+                      direction: dir,
+                      isVerified: true,
+                    },
+                  };
+                })
+              );
+              setIntruderAlert((prev) => (prev?.camId === camId ? null : prev));
+
+              if (isNewLog && !hadRecentRfidSwipe(dir)) {
+                showRfidToast(dir, plate);
+                recentRfidSwipeRef.current = { direction: dir, at: Date.now(), plate };
+              }
+            } else {
+              setCameras((prev) =>
+                prev.map((cam) => (cam.id === camId ? { ...cam, currentUser: null } : cam))
+              );
+
+              if (isNewLog) {
+                setIntruderAlert({
+                  camId,
+                  directionText,
+                  detectedPlate: latestLog.detectedPlate || latestLog.vehiclePlate || 'Không rõ',
+                  time: `${timeStr} ${dateStr}`,
+                  logId: latestLog.logId,
+                });
+              }
             }
           }
         });
@@ -246,9 +304,35 @@ function AppContent() {
   const fetchCards = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/rfid-cards');
-      if (response.data) {
-        setCards(response.data);
+      if (!response.data) return;
+
+      const newCards = response.data;
+      const prevCards = cardsRef.current;
+
+      if (cardsReadyRef.current) {
+        const prevUids = new Set(prevCards.map((c) => c.cardUid));
+        const newUids = new Set(newCards.map((c) => c.cardUid));
+
+        newCards.forEach((card) => {
+          if (!prevUids.has(card.cardUid)) {
+            const plate = card.plateNumber || '—';
+            showRfidToast('IN', plate);
+            recentRfidSwipeRef.current = { direction: 'IN', at: Date.now(), plate };
+          }
+        });
+
+        prevCards.forEach((card) => {
+          if (!newUids.has(card.cardUid)) {
+            const plate = card.plateNumber || '—';
+            showRfidToast('OUT', plate);
+            recentRfidSwipeRef.current = { direction: 'OUT', at: Date.now(), plate };
+          }
+        });
       }
+
+      cardsRef.current = newCards;
+      cardsReadyRef.current = true;
+      setCards(newCards);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách thẻ RFID:', error);
     }
@@ -311,23 +395,17 @@ function AppContent() {
   };
 
   useEffect(() => {
-    const init = async () => {
+    const poll = async () => {
       await fetchScannedData();
       await fetchFireStatus();
       await fetchResidents();
-      await fetchLogs();
       await fetchCards();
+      await fetchLogs();
     };
-    init();
 
-    // Tự động cập nhật mỗi 5 giây
-    const interval = setInterval(() => {
-      fetchScannedData();
-      fetchFireStatus();
-      fetchResidents();
-      fetchLogs();
-      fetchCards();
-    }, 5000);
+    poll();
+
+    const interval = setInterval(poll, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -472,7 +550,6 @@ const handleClearTestData = () => {
         onCloseMobile={() => setMobileSidebarOpen(false)}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        onToggleChat={() => setIsChatOpen(!isChatOpen)}
       />
 
       <main className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -484,6 +561,8 @@ const handleClearTestData = () => {
           fireAlert={fireAlert}
           onToggleDashboard={() => setIsDashboardVisible(!isDashboardVisible)}
           isDashboardVisible={isDashboardVisible}
+          onToggleChat={() => setIsChatOpen((prev) => !prev)}
+          isChatOpen={isChatOpen}
         />
 
         {activeMenu === 'menu' && (
@@ -583,7 +662,12 @@ const handleClearTestData = () => {
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast-item ${toast.type}`}>
             <div className="toast-icon">
-              {toast.type === 'open' ? (
+              {toast.type === 'rfid' ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+              ) : toast.type === 'open' ? (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 20V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16" /><path d="M2 20h20" /><path d="M10 12v.01" /><path d="M14 4h4a2 2 0 0 1 2 2v14" />
                 </svg>

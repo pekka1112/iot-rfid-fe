@@ -19,13 +19,13 @@
 .camera-display {
   width: 100%;
   background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e8f0fe 100%);
-  padding: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   position: relative;
   color: #0f172a;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
@@ -64,12 +64,12 @@
 }
 
 .camera-preview {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  flex: 0 0 auto;
-  aspect-ratio: 16 / 9;
-  min-height: 180px;
-  max-height: 320px;
-  margin-top: 8px;
+  flex: 1 1 auto;
+  min-height: 220px;
+  margin-top: 0;
   border-radius: 14px;
   background:
     radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 255, 255, 0.5), transparent 70%),
@@ -331,6 +331,22 @@
 .btn-door-shut:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.25);
+}
+
+@media (max-width: 768px) {
+  .camera-card {
+    height: auto;
+  }
+
+  .camera-display {
+    flex: 0 0 auto;
+  }
+
+  .camera-preview {
+    flex: 0 0 auto;
+    aspect-ratio: 16 / 9;
+    min-height: 200px;
+  }
 }
 
 @media (max-width: 400px) {

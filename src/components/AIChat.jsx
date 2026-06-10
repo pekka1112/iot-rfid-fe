@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/AIChat.css';
+import { getAIResponse, SUGGESTIONS } from '../utils/aiChatKnowledge';
+
+const WELCOME_MESSAGE =
+  'Xin chào! Tôi là trợ lý AI của SmartPark. Bạn có thể hỏi về hệ thống, cài đặt, RFID, camera hoặc lịch sử.';
 
 export default function AIChat({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
-    { id: 1, text: 'Xin chào! Tôi là trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?', sender: 'ai' }
+    { id: 1, text: WELCOME_MESSAGE, sender: 'ai' },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -17,23 +21,27 @@ export default function AIChat({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    
-    const newMsg = { id: Date.now(), text: input, sender: 'user' };
+  const sendMessage = (text) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    const newMsg = { id: Date.now(), text: trimmed, sender: 'user' };
     setMessages((prev) => [...prev, newMsg]);
     setInput('');
     setIsTyping(true);
 
-    // Mô phỏng phản hồi từ ChatGPT AI
     setTimeout(() => {
       setIsTyping(false);
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, text: `Đây là phản hồi tự động từ AI cho câu hỏi: "${newMsg.text}". (Để tích hợp ChatGPT thật, hãy gắn API key vào đây).`, sender: 'ai' }
+        { id: Date.now() + 1, text: getAIResponse(trimmed), sender: 'ai' },
       ]);
-    }, 1500);
+    }, 800);
   };
+
+  const handleSend = () => sendMessage(input);
+
+  const handleSuggestion = (suggestion) => sendMessage(suggestion);
 
   if (!isOpen) return null;
 
@@ -41,9 +49,8 @@ export default function AIChat({ isOpen, onClose }) {
     <div className="ai-chat-container">
       <div className="ai-chat-header">
         <div className="ai-chat-title">
-          
           <img src="ai.png" alt="" className="logo-image" />
-          Trợ lí AI
+          AI Hệ thống  (Thử nghiệm)
         </div>
         <button className="ai-chat-close" onClick={onClose} aria-label="Đóng chat">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,7 +59,7 @@ export default function AIChat({ isOpen, onClose }) {
           </svg>
         </button>
       </div>
-      
+
       <div className="ai-chat-messages">
         {messages.map((msg) => (
           <div key={msg.id} className={`ai-message-row ${msg.sender === 'user' ? 'user' : 'ai'}`}>
@@ -61,6 +68,20 @@ export default function AIChat({ isOpen, onClose }) {
             </div>
           </div>
         ))}
+        {messages.length === 1 && (
+          <div className="ai-chat-suggestions">
+            {SUGGESTIONS.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                className="ai-chat-suggestion-chip"
+                onClick={() => handleSuggestion(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
         {isTyping && (
           <div className="ai-message-row ai">
             <div className="ai-message-bubble typing">
@@ -72,12 +93,12 @@ export default function AIChat({ isOpen, onClose }) {
       </div>
 
       <div className="ai-chat-input-area">
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Nhập tin nhắn..." 
+          placeholder="Nhập tin nhắn..."
           className="ai-chat-input"
         />
         <button className="ai-chat-send" onClick={handleSend} disabled={!input.trim()}>

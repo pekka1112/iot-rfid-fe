@@ -1,22 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
+import FireAlertModal from './FireAlertModal';
 import '../styles/Header.css';
 
-export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, fireAlert = false, onToggleDashboard, isDashboardVisible = false  , onToggleChat, isChatOpen = false}) {
+export default function Header({ onToggleMobileSidebar, onMenuChange, notifications = [], onClearNotifications, onToggleDashboard, isDashboardVisible = false  , onToggleChat, isChatOpen = false}) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showFirePopup, setShowFirePopup] = useState(false);
+  const [fireAlert, setFireAlert] = useState(false);
   const menuRef = useRef(null);
   const notifRef = useRef(null);
-  const fireRef = useRef(null);
-
-  // Tự động bật popup nếu có cảnh báo cháy từ backend
+ 
+  // Polling API để lấy smoke status từ Spring
   useEffect(() => {
-    if (fireAlert) {
-      setShowFirePopup(true);
-    }
-  }, [fireAlert]);
+    const interval = setInterval(async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/alerts/smoke/status');
+        console.log('🔥 Smoke status:', response.data.status);
+        setFireAlert(response.data.status === 'ALERT');
+        // Nếu status là ALERT thì bật popup
+        setShowFirePopup(response.data.status === 'ALERT');
+      } catch (error) {
+        console.error('❌ Lỗi fetch smoke status:', error.message);
+      }
+    }, 2000);  // Poll mỗi 2 giây
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // useEffect(() => {
+  //   if (fireAlert) {
+  //     setShowFirePopup(true);
+  //   }
+  // }, [fireAlert]);
 
   const handleAvatarClick = () => {
     setShowUserMenu(!showUserMenu);
@@ -47,9 +65,6 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
       }
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifications(false);
-      }
-      if (fireRef.current && !fireRef.current.contains(event.target)) {
-        setShowFirePopup(false);
       }
     }
 
@@ -180,165 +195,27 @@ export default function Header({ onToggleMobileSidebar, onMenuChange, notificati
             )}
           </div>
             {/* CHUÔNG CẢNH BÁO CHÁY THEO CẢM BIẾN */}
-           <div className="fire-alert" ref={fireRef} style={{ position: 'relative' }}>
+           <div className="fire-alert">
             <button 
+              type="button"
               className={`action-btn notification-btn ${fireAlert ? 'blinking-fire' : ''}`} 
-              onClick={() => setShowFirePopup(!showFirePopup)}
+              onClick={() => setShowFirePopup(true)}
               style={fireAlert ? { animation: 'pulse-red 1.5s infinite', border: '1px solid red' } : { border: '1px solid #ef4444' }}
               title="Cảnh báo cháy"
+              aria-label="Cảnh báo cháy"
             >
               {fireAlert && <span className="dot" style={{ backgroundColor: '#ff0000', boxShadow: '0 0 8px red' }}></span>}
-              {/* Flame icon (Icon ngọn lửa) viền đỏ */}
               <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
               </svg>
             </button>
-            {showFirePopup && (
-              <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 99999,
-                backdropFilter: 'blur(4px)',
-                animation: 'fadeIn 0.3s ease'
-              }}>
-                <div style={{
-                  backgroundColor: '#fff',
-                  borderRadius: '20px',
-                  padding: '40px 36px',
-                  maxWidth: '450px',
-                  width: '90%',
-                  boxShadow: '0 20px 60px rgba(239, 68, 68, 0.3), 0 0 80px rgba(0, 0, 0, 0.4)',
-                  border: '3px solid #ef4444',
-                  textAlign: 'center',
-                  animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '20px'
-                  }}>
-                    <h2 style={{
-                      margin: 0,
-                      fontSize: '22px',
-                      fontWeight: '900',
-                      color: '#ef4444',
-                      letterSpacing: '0.5px'
-                    }}>⚠️ CẢNH BÁO CHÁY!</h2>
-                    <button
-                      onClick={() => setShowFirePopup(false)}
-                      style={{
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        fontSize: '28px',
-                        cursor: 'pointer',
-                        color: '#ef4444',
-                        padding: '0',
-                        width: '32px',
-                        height: '32px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  <div style={{
-                    margin: '20px 0',
-                    display: 'flex',
-                    justifyContent: 'center'
-                  }}>
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2c0 0-4.5 4.5-4.5 8.5C7.5 14.5 12 22 12 22s4.5-7.5 4.5-11.5C16.5 6.5 12 2 12 2z"/>
-                    </svg>
-                  </div>
-
-                  {fireAlert ? (
-                    <>
-                      <p style={{
-                        fontSize: '18px',
-                        fontWeight: '800',
-                        color: '#ef4444',
-                        margin: '16px 0 12px',
-                        letterSpacing: '0.3px'
-                      }}>Hệ thống phát hiện tín hiệu cháy!</p>
-                      <p style={{
-                        fontSize: '14px',
-                        color: '#7f1d1d',
-                        lineHeight: '1.6',
-                        margin: '0 0 24px'
-                      }}>Vui lòng sơ tán khỏi tòa nhà và gọi <strong>114</strong> ngay lập tức.</p>
-                    </>
-                  ) : (
-                    <>
-                      <p style={{
-                        fontSize: '18px',
-                        fontWeight: '800',
-                        color: '#10b981',
-                        margin: '16px 0 12px'
-                      }}>Hệ thống an toàn</p>
-                      <p style={{
-                        fontSize: '14px',
-                        color: '#666',
-                        margin: '0'
-                      }}>Không phát hiện tín hiệu cháy.</p>
-                    </>
-                  )}
-
-                  <button
-                    onClick={() => setShowFirePopup(false)}
-                    style={{
-                      marginTop: '24px',
-                      padding: '12px 32px',
-                      backgroundColor: '#ef4444',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      fontSize: '15px',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s',
-                      letterSpacing: '0.3px'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-                  >
-                    Đã hiểu
-                  </button>
-                </div>
-
-                <style>{`
-                  @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                  }
-                  @keyframes scaleIn {
-                    from {
-                      opacity: 0;
-                      transform: scale(0.9);
-                    }
-                    to {
-                      opacity: 1;
-                      transform: scale(1);
-                    }
-                  }
-                  @keyframes pulse-red {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.6; }
-                  }
-                `}</style>
-              </div>
-            )}
           </div>
+
+          <FireAlertModal
+            isOpen={showFirePopup}
+            isAlert={fireAlert}
+            onClose={() => setShowFirePopup(false)}
+          />
 
           <button 
             className={`action-btn dashboard-toggle-btn ${isDashboardVisible ? 'active' : ''}`}

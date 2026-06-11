@@ -126,6 +126,18 @@ export default function RfidCardsPage() {
     }
   };
 
+ const formatDateTime = (dateString) => {
+  if (!dateString) return '—';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+   }).format(new Date(dateString));
+  };
+
   const filteredData = rfidData.filter((item) => {
     const q = searchTerm.toLowerCase();
     return (
@@ -201,9 +213,9 @@ export default function RfidCardsPage() {
               <tr>
                 <th>ID Thẻ</th>
                 <th>Biển số xe</th>
-                <th style={{ textAlign: 'center' }}>Thời gian (Time)</th>
+                <th style={{ textAlign: 'center' }}>Thời gian thẻ được tạo</th>
                 <th style={{ textAlign: 'center' }}>Trạng thái</th>
-                <th style={{ textAlign: 'center' }}>Hành động</th>
+                <th style={{ textAlign: 'center' }}>Hành động thẻ</th>
               </tr>
             </thead>
             <tbody>
@@ -226,7 +238,7 @@ export default function RfidCardsPage() {
                     <td>
                       {row.plateNumber ? <span className="plate-badge" style={{ display: 'inline-block', padding: '4px 10px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontWeight: 700, fontSize: '13px' }}>{row.plateNumber}</span> : '—'}
                     </td>
-                    <td style={{ fontWeight: 500, color: '#475569', textAlign: 'center' }}>{row.createdAt || '—'}</td>
+                    <td style={{ fontWeight: 600, color: '#475569', textAlign: 'center' }}>{formatDateTime(row.createdAt) || '—'}</td>
                     <td style={{ textAlign: 'center' }}>
                       <span className={`status-badge ${row.direction === 'Vào' ? 'status-in' : row.direction === 'Ra' ? 'status-out' : ''}`} style={{ 
                         display: 'inline-block', 
@@ -238,7 +250,7 @@ export default function RfidCardsPage() {
                         color: row.direction === 'Vào' ? '#16a34a' : row.direction === 'Ra' ? '#dc2626' : '#64748b',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                       }}>
-                        Đang trong bãi
+                        Xe đang trong bãi
                       </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
@@ -331,29 +343,31 @@ export default function RfidCardsPage() {
           <div style={{
             backgroundColor: '#fff',
             borderRadius: '12px',
-            padding: '32px',
+            padding: '20px',
             maxWidth: '420px',
             width: '90%',
             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)'
           }}>
             <h2 style={{
-              margin: '0 0 24px',
-              fontSize: '20px',
+              margin: '0 0 12px',
+              fontSize: '24px',
               fontWeight: '700',
-              color: '#0f172a'
+              color: '#0f172a',
+              textAlign: 'left'
             }}>
-              {modalMode === 'create' ? 'Tạo thẻ RFID mới' : 'Sửa thẻ RFID'}
+              {modalMode === 'create' ? 'Tạo thẻ RFID thủ công' : 'Sửa thẻ RFID có ID: ' + editingCard.cardUid}
             </h2>
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '18px',
                 fontWeight: '600',
                 color: '#334155',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                textAlign: 'left'
               }}>
-                ID Thẻ
+                ID Thẻ RFID
               </label>
               <input
                 type="text"
@@ -375,12 +389,13 @@ export default function RfidCardsPage() {
             <div style={{ marginBottom: '24px' }}>
               <label style={{
                 display: 'block',
-                fontSize: '14px',
+                fontSize: '18px',
                 fontWeight: '600',
                 color: '#334155',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                textAlign: 'left'
               }}>
-                Biển số xe
+                Biển số xe (Plate Number)
               </label>
               <input
                 type="text"
@@ -436,7 +451,7 @@ export default function RfidCardsPage() {
                 onMouseOver={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#059669')}
                 onMouseOut={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#10b981')}
               >
-                {submitting ? 'Đang xử lý...' : (modalMode === 'create' ? 'Tạo' : 'Cập nhật')}
+                {submitting ? 'Đang xử lý...' : (modalMode === 'create' ? 'Tạo thẻ' : 'Cập nhật')}
               </button>
             </div>
           </div>

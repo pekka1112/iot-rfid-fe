@@ -290,7 +290,7 @@ const handleSaveVehicle = async () => {
   <div className="popup-overlay">
     <div className="popup-box">
 
-      <h3>Thêm biển số xe</h3>
+      <h3 style={{textAlign: 'left'}}>Thêm biển số xe mới</h3>
 
       <p>
         Người dùng:
@@ -306,11 +306,11 @@ const handleSaveVehicle = async () => {
 
       <div className="popup-actions">
         <button onClick={() => setShowVehiclePopup(false)}>
-          Hủy
+          Hủy thêm
         </button>
 
-        <button onClick={handleSaveVehicle}>
-          Lưu
+        <button onClick={handleSaveVehicle} style={{backgroundColor: 'white', border: '1px solid #cbd5e1'}} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white' }>
+          Thêm biển số này
         </button>
       </div>
 

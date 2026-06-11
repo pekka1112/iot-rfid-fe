@@ -1,0 +1,475 @@
+.fire-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fireOverlayIn 0.35s ease;
+}
+
+.fire-alert-overlay--danger {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(239, 68, 68, 0.35), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.3), transparent 40%),
+    rgba(15, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  animation: fireOverlayIn 0.35s ease, fireOverlayPulse 2s ease-in-out infinite;
+}
+
+.fire-alert-overlay--safe {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.fire-alert-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+  border-radius: 28px;
+  padding: 32px 32px 28px;
+  text-align: center;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  animation: fireModalIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fire-alert-modal--danger {
+  background: linear-gradient(165deg, #fff5f5 0%, #ffffff 38%, #fff7ed 100%);
+  border: 4px solid #ef4444;
+  box-shadow:
+    0 0 0 4px rgba(239, 68, 68, 0.15),
+    0 30px 90px rgba(239, 68, 68, 0.35),
+    0 0 120px rgba(249, 115, 22, 0.2);
+}
+
+.fire-alert-modal--safe {
+  background: linear-gradient(165deg, #f0fdf4 0%, #ffffff 100%);
+  border: 3px solid #22c55e;
+}
+
+.fire-alert-flames {
+  position: absolute;
+  inset: -2px;
+  border-radius: 28px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.fire-alert-flames span {
+  position: absolute;
+  bottom: -20px;
+  width: 80px;
+  height: 120px;
+  background: radial-gradient(ellipse at center bottom, rgba(251, 146, 60, 0.55), transparent 70%);
+  border-radius: 50% 50% 20% 20%;
+  animation: fireFlicker 1.2s ease-in-out infinite alternate;
+  filter: blur(2px);
+}
+
+.fire-alert-flames span:nth-child(1) { left: 8%; animation-delay: 0s; }
+.fire-alert-flames span:nth-child(2) { left: 28%; animation-delay: 0.2s; height: 140px; }
+.fire-alert-flames span:nth-child(3) { left: 48%; animation-delay: 0.4s; }
+.fire-alert-flames span:nth-child(4) { left: 68%; animation-delay: 0.15s; height: 130px; }
+.fire-alert-flames span:nth-child(5) { left: 85%; animation-delay: 0.35s; }
+
+.fire-alert-scanline {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(239, 68, 68, 0.06) 50%,
+    transparent 100%
+  );
+  animation: fireScan 2.5s linear infinite;
+  z-index: 0;
+}
+
+.fire-alert-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.fire-alert-close:hover {
+  background: rgba(239, 68, 68, 0.22);
+  transform: scale(1.05);
+}
+
+.fire-alert-badge-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fire-alert-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fire-alert-badge.danger {
+  background: #ef4444;
+  color: #fff;
+  animation: fireBadgePulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.fire-alert-badge.safe {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.fire-alert-time {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.fire-alert-title {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 20px;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+}
+
+.fire-alert-title.danger {
+  color: #dc2626;
+  text-shadow: 0 2px 24px rgba(239, 68, 68, 0.35);
+  animation: fireTitleBlink 1.5s ease-in-out infinite;
+}
+
+.fire-alert-title.safe {
+  color: #15803d;
+}
+
+.fire-alert-visual {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+}
+
+.fire-alert-gif-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 3px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 16px 40px rgba(239, 68, 68, 0.25);
+  background: #1a0505;
+}
+
+.fire-alert-gif {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+}
+
+.fire-alert-gif--animated {
+  animation: fireHeroKenBurns 6s ease-in-out infinite alternate;
+}
+
+.fire-alert-gif-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.fire-alert-safe-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.2);
+}
+
+.fire-alert-safe-icon svg {
+  width: 64px;
+  height: 64px;
+}
+
+.fire-alert-headline {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 10px;
+  font-size: clamp(18px, 3vw, 22px);
+  font-weight: 800;
+  color: #991b1b;
+  line-height: 1.4;
+}
+
+.fire-alert-headline.safe {
+  color: #166534;
+}
+
+.fire-alert-desc {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 18px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #7f1d1d;
+}
+
+.fire-alert-desc.safe {
+  color: #475569;
+}
+
+.fire-alert-steps {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+}
+
+.fire-alert-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(254, 226, 226, 0.65);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: #7f1d1d;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.fire-alert-steps li::before {
+  content: '!';
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.fire-alert-hotline {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 22px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.35);
+}
+
+.fire-alert-hotline-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fire-alert-hotline-number {
+  font-size: clamp(36px, 8vw, 52px);
+  font-weight: 900;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.fire-alert-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.fire-alert-btn {
+  min-width: 160px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.fire-alert-btn:hover {
+  transform: translateY(-1px);
+}
+
+.fire-alert-btn--call {
+  background: #fff;
+  color: #dc2626;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.fire-alert-btn--call:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.fire-alert-btn--ack {
+  background: #1e293b;
+  color: #fff;
+}
+
+.fire-alert-btn--ack:hover {
+  background: #0f172a;
+}
+
+.fire-alert-btn--safe {
+  background: #22c55e;
+  color: #fff;
+}
+
+.fire-alert-btn--safe:hover {
+  background: #16a34a;
+}
+
+@keyframes fireOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fireOverlayPulse {
+  0%, 100% { background-color: rgba(15, 0, 0, 0.88); }
+  50% { background-color: rgba(40, 0, 0, 0.92); }
+}
+
+@keyframes fireModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fireTitleBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes fireBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes fireFlicker {
+  from { transform: translateY(0) scaleX(1); opacity: 0.7; }
+  to { transform: translateY(-8px) scaleX(1.1); opacity: 1; }
+}
+
+@keyframes fireScan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes fireHeroKenBurns {
+  from {
+    transform: scale(1) translateX(0);
+  }
+  to {
+    transform: scale(1.08) translateX(-2%);
+  }
+}
+
+@media (max-width: 640px) {
+  .fire-alert-modal {
+    padding: 24px 20px 20px;
+    border-radius: 22px;
+  }
+
+  .fire-alert-gif {
+    max-height: 200px;
+  }
+
+  .fire-alert-actions {
+    flex-direction: column;
+  }
+
+  .fire-alert-btn {
+    width: 100%;
+  }
+}
+
+.blinking-fire {
+  animation: headerFireBlink 1.2s ease-in-out infinite;
+}
+
+@keyframes headerFireBlink {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
